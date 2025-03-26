@@ -1,0 +1,95 @@
+{
+  "name": "test-whitespots",
+  "displayName": "TEST_whitespots",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.97.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "appsec.checkVulnerabilities",
+        "title": "Проверить уязвимости"
+      },
+      {
+          "command": "appsec.configure",
+          "title": "AppSec: Настроить"
+      },
+      {
+          "command": "appsecVulnerabilities.setFilter",
+          "title": "Фильтр уязвимостей"
+      },
+      {
+          "command": "appsec.showDetails",
+          "title": "Подробности уязвимостей"
+      },
+      {
+        "command": "appsecVulnerabilities.setViewMode",
+        "title": "Подробности уязвимостей"
+      }
+    ],
+    "viewsContainers": {
+        "activitybar": [
+            {
+                "id": "appsec",
+                "title": "AppSec",
+                "icon": "resources/appsec.svg"
+            }
+        ]
+    },
+    "views": {
+        "appsec": [
+            {
+                "id": "appsecVulnerabilities",
+                "name": "Уязвимости"
+            }
+        ]
+  },
+"menus": {
+    "view/title": [
+        {
+            "command": "appsec.configure",
+            "when": "view == appsecVulnerabilities",
+            "group": "navigation"
+        },
+        {
+          "command": "appsec.setViewMode",
+          "when": "view == appsecVulnerabilities",
+          "group": "navigation"
+        }
+    ]
+}
+
+  },
+  "scripts": {
+    "vscode:prepublish": "node esbuild.js --production",
+    "compile": "node esbuild.js",
+    "watch:esbuild": "node esbuild.js --watch",
+    "package": "node esbuild.js --production",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "1.97.0",
+    "@typescript-eslint/eslint-plugin": "8.22.0",
+    "@typescript-eslint/parser": "8.22.0",
+    "@vscode/test-cli": "0.0.10",
+    "@vscode/test-electron": "2.4.1",
+    "esbuild": "0.24.2",
+    "eslint": "9.19.0",
+    "npm-run-all": "4.1.5",
+    "typescript": "5.7.3"
+  },
+  "dependencies": {
+    "node-fetch": "3.3.2"
+  }
+}
