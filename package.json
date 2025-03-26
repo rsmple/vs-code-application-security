@@ -1,6 +1,6 @@
 {
-  "name": "test-whitespots",
-  "displayName": "TEST_whitespots",
+  "name": "whitespots-plugin",
+  "displayName": "Whitespots Plugin",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -18,16 +18,16 @@
         "title": "Проверить уязвимости"
       },
       {
-          "command": "appsec.configure",
-          "title": "AppSec: Настроить"
+        "command": "appsec.configure",
+        "title": "AppSec: Настроить"
       },
       {
-          "command": "appsecVulnerabilities.setFilter",
-          "title": "Фильтр уязвимостей"
+        "command": "appsecVulnerabilities.setFilter",
+        "title": "Фильтр уязвимостей"
       },
       {
-          "command": "appsec.showDetails",
-          "title": "Подробности уязвимостей"
+        "command": "appsec.showDetails",
+        "title": "Подробности уязвимостей"
       },
       {
         "command": "appsecVulnerabilities.setViewMode",
@@ -35,42 +35,40 @@
       }
     ],
     "viewsContainers": {
-        "activitybar": [
-            {
-                "id": "appsec",
-                "title": "AppSec",
-                "icon": "resources/appsec.svg"
-            }
-        ]
+      "activitybar": [
+        {
+          "id": "appsec",
+          "title": "AppSec",
+          "icon": "resources/appsec.svg"
+        }
+      ]
     },
     "views": {
-        "appsec": [
-            {
-                "id": "appsecVulnerabilities",
-                "name": "Уязвимости"
-            }
-        ]
-  },
-"menus": {
-    "view/title": [
+      "appsec": [
         {
-            "command": "appsec.configure",
-            "when": "view == appsecVulnerabilities",
-            "group": "navigation"
+          "id": "appsecVulnerabilities",
+          "name": "Уязвимости"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "appsec.configure",
+          "when": "view == appsecVulnerabilities",
+          "group": "navigation"
         },
         {
           "command": "appsec.setViewMode",
           "when": "view == appsecVulnerabilities",
           "group": "navigation"
         }
-    ]
-}
-
+      ]
+    }
   },
   "scripts": {
-    "vscode:prepublish": "node esbuild.js --production",
-    "compile": "node esbuild.js",
-    "watch:esbuild": "node esbuild.js --watch",
+    "build": "node esbuild.js",
+    "dev": "node esbuild.js --watch",
     "package": "node esbuild.js --production",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
