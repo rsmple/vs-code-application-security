@@ -11,6 +11,7 @@
   ],
   "activationEvents": [],
   "main": "./dist/whitespots-plugin.js",
+  "type": "module",
   "contributes": {
     "commands": [
       {

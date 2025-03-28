@@ -43,7 +43,7 @@ interface Asset {
             }
         }
     }
-    tags: any[]
+    tags: string[]
     cloud_key_id: string
     cloud_key_secret: string | null
     verified_and_assigned_findings_count: number
@@ -160,7 +160,7 @@ class VulnerabilityCodeLensProvider implements vscode.CodeLensProvider {
   private onDidChangeCodeLensesEmitter = new vscode.EventEmitter<void>()
   public readonly onDidChangeCodeLenses = this.onDidChangeCodeLensesEmitter.event
 
-  provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.CodeLens[] {
+  provideCodeLenses(document: vscode.TextDocument): vscode.CodeLens[] {
     const codeLenses: vscode.CodeLens[] = []
     vulnerabilityAnnotations.forEach(vuln => {
       if (path.normalize(vuln.filePath) === path.normalize(document.uri.fsPath)) {
@@ -453,7 +453,7 @@ class VulnerabilityTreeDataProvider implements vscode.TreeDataProvider<Vulnerabi
         groups[vuln.filePath].push(vuln)
       })
       return Promise.resolve(
-        Object.entries(groups).map(([filePath, vulns]) => {
+        Object.entries(groups).map(([filePath]) => {
           const label = path.basename(filePath)
           return new VulnerabilityTreeItem(label, filePath, 0, 'info', undefined, vscode.TreeItemCollapsibleState.Collapsed)
         }),
