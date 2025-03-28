@@ -6,6 +6,7 @@ src/**
 .gitignore
 .yarnrc
 esbuild.js
+vite.config.ts
 vsc-extension-quickstart.md
 **/tsconfig.json
 **/eslint.config.mjs

@@ -10,7 +10,7 @@
     "Other"
   ],
   "activationEvents": [],
-  "main": "./dist/extension.js",
+  "main": "./dist/whitespots-plugin.js",
   "contributes": {
     "commands": [
       {
@@ -30,7 +30,7 @@
         "title": "Подробности уязвимостей"
       },
       {
-        "command": "appsecVulnerabilities.setViewMode",
+        "command": "appsec.setViewMode",
         "title": "Подробности уязвимостей"
       }
     ],
@@ -47,7 +47,8 @@
       "appsec": [
         {
           "id": "appsecVulnerabilities",
-          "name": "Уязвимости"
+          "name": "Уязвимости",
+          "icon": "resources/appsec.svg"
         }
       ]
     },
@@ -72,7 +73,13 @@
     "package": "vsce package",
     "type-check": "tsc --noEmit",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "vscode:prepublish": "npm run package",
+    "compile": "vite build",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/node": "22.13.10",
