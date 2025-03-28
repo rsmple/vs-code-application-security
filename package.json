@@ -63,6 +63,11 @@
           "command": "appsec.setViewMode",
           "when": "view == appsecVulnerabilities",
           "group": "navigation"
+        },
+        {
+          "command": "appsec.checkVulnerabilities",
+          "when": "view == appsecVulnerabilities",
+          "group": "navigation"
         }
       ]
     }
@@ -82,6 +87,7 @@
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
+    "@tsconfig/node22": "22.0.0",
     "@types/node": "22.13.10",
     "@types/vscode": "1.98.0",
     "@typescript-eslint/eslint-plugin": "8.28.0",

@@ -1,0 +1,19 @@
+{
+  "include": [
+    "env.d.ts",
+    "src/**/*.d.ts",
+    "src/**/*.ts"
+  ],
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "strict": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
