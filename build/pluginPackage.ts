@@ -51,10 +51,10 @@ export const pluginPackage: Plugin = {
       )
 
       // eslint-disable-next-line no-console
-      console.log(`✅ package.json generated at: ${ outputPath }`)
+      console.log(`✓ package.json generated at: ${ outputPath }`)
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('❌ Error generating package.json:', error)
+      console.error('✗ Error generating package.json:', error)
     }
   },
 }
