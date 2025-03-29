@@ -1,9 +1,9 @@
-import fetch, {Request} from 'node-fetch'
 import {window} from 'vscode'
 
 import {ApiError, ApiErrorCancel, encodeQueryParams} from 'eco-vue-js/dist/utils/api'
 
 import {getSavedSettings} from '@/models/Settings'
+import {outputChannel} from '@/utils/OutputChannel'
 
 export const getURLParams = (params: RequestConfig['params']): string => {
   return new URLSearchParams(encodeQueryParams(params) as Record<string, string>).toString()
@@ -21,7 +21,9 @@ const HEADERS_FORMDATA: Record<string, string> = {
 }
 
 function doFetch<R, D extends RequestData>(method: string, url: string, config?: RequestConfig<D>): Promise<RequestResponse<R, D>> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    const {default: fetch, Request} = await import('node-fetch')
+
     const headers = new Headers(config?.data instanceof FormData ? HEADERS_FORMDATA : HEADERS_JSON)
 
     const {token, base_url} = getSavedSettings()
@@ -42,8 +44,10 @@ function doFetch<R, D extends RequestData>(method: string, url: string, config?:
 
     const params = config?.params ? '?' + getURLParams(config.params) : ''
 
+    outputChannel.appendLine((base_url.endsWith('/') ? base_url.slice(0, -1) : base_url) + BASE_URL + url + params)
+
     const request = new Request(
-      base_url + BASE_URL + url + params,
+      (base_url.endsWith('/') ? base_url.slice(0, -1) : base_url) + BASE_URL + url + params,
       {
         method: method,
         headers,

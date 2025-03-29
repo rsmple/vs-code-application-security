@@ -1,0 +1,74 @@
+import {type Command, type Event, EventEmitter, Range, type TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri} from 'vscode'
+
+import {Finding, getFindingAbsolutePath} from '@/models/Finding'
+import {Severity, severityTitleMap} from '@/models/Severity'
+
+class TreeItemFinding extends TreeItem {
+  constructor(
+        public readonly list: Finding[],
+        public readonly label: string,
+        public readonly command?: Command,
+        public readonly collapsibleState: TreeItemCollapsibleState = TreeItemCollapsibleState.None,
+  ) {
+    super(label, collapsibleState)
+  }
+}
+
+const getCommandFindingOpen = (value: Finding): Command | undefined => {
+  const filePath = getFindingAbsolutePath(value)
+
+  if (filePath === null) return undefined
+
+  const command: Command = {
+    command: 'vscode.open',
+    title: 'Open file',
+    arguments: [Uri.file(filePath)],
+  }
+
+  if (value.line !== null) command.arguments?.push({selection: new Range(value.line, 0, value.line, 0)})
+
+  return command
+}
+
+export class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding> {
+  private _onDidChangeTreeData: EventEmitter<TreeItemFinding | undefined | void> = new EventEmitter<TreeItemFinding | undefined | void>()
+  readonly onDidChangeTreeData: Event<TreeItemFinding | undefined | void> = this._onDidChangeTreeData.event
+
+  private list: Finding[] = []
+  private groupList: Record<string, Finding[]> = {}
+  private severityFilter: Severity | null = null
+
+  public updateVulnerabilities(list: Finding[]) {
+    this.list = list
+    this.groupList = list.reduce<Record<string, Finding[]>>((result, current) => {
+      if (current.file_path !== null) {
+        if (!result[current.file_path]) result[current.file_path] = []
+
+        result[current.file_path].push(current)
+      }
+      return result
+    }, {})
+    this._onDidChangeTreeData.fire()
+  }
+
+  public setFilter(severity: Severity | null) {
+    this.severityFilter = severity
+    this._onDidChangeTreeData.fire()
+  }
+
+  getTreeItem(element: TreeItemFinding): TreeItem {
+    return element
+  }
+
+  getChildren(element?: TreeItemFinding): TreeItemFinding[] {
+    if (!element) {
+      return Object.keys(this.groupList).map(path => new TreeItemFinding(this.groupList[path], path, undefined, TreeItemCollapsibleState.Collapsed))
+    } else {
+      return element.list.map(item => new TreeItemFinding(
+        [],
+        severityTitleMap[item.severity] + (item.line !== null ? ` - Line ${ item.line }` : ''),
+        getCommandFindingOpen(item),
+      ))
+    }
+  }
+}

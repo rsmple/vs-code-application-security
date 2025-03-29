@@ -6,6 +6,10 @@ export type Settings = {
   vuln_highlighting_enabled: boolean
 }
 
+export interface SettingsMessage extends Settings {
+  command: 'save_settings'
+}
+
 type SettingsPrefix = 'appsec'
 
 type SettingsRawKey<Key extends keyof Settings = keyof Settings> = `${ SettingsPrefix }_${ Key }`

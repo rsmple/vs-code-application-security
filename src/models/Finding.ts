@@ -2,7 +2,14 @@ import type {AssetField} from './Asset'
 import type {CVSSVectorWithScore} from './CVSS'
 import type {ProductLite} from './Product'
 import type {Severity} from './Severity'
-import type {TriageStatus} from './TriageStatus'
+
+import {workspace} from 'vscode'
+
+import {dateFormat} from 'eco-vue-js/dist/utils/dateTime'
+
+import {join} from 'path'
+
+import {type TriageStatus, triageStatusTitleMap} from './TriageStatus'
 
 export type FindingRelatedIssue = {
   url: string
@@ -95,3 +102,38 @@ export type Finding = {
 
   cwe_set: number[]
 } & FindingJira & Record<AssetField, string>
+
+const findingFieldTitleMap = {
+  id: 'ID',
+  current_sla_level: 'Status',
+  cvss: 'CVSS',
+  date_created: 'Created',
+  date_verified: 'Verified',
+} as const satisfies Partial<Record<keyof Finding, string>>
+
+const findingFieldDetailList: (keyof typeof findingFieldTitleMap)[] = [
+  'id',
+  'current_sla_level',
+  'cvss',
+  'date_verified',
+]
+
+const findingFieldGetterMap = {
+  id: value => value.id.toString(),
+  current_sla_level: value => triageStatusTitleMap[value.current_sla_level],
+  cvss: value => value.cvss?.['4.0']?.score?.toString() ?? value.cvss?.['3.1']?.score?.toString() ?? 'N / A',
+  date_created: value => value.date_created ? dateFormat(new Date(value.date_created)) : 'N / A',
+  date_verified: value => value.date_verified ? dateFormat(new Date(value.date_verified)) : 'N / A',
+} as const satisfies Partial<Record<keyof Finding, (value: Finding) => string>>
+
+export const getFindingDetails = (value: Finding) => {
+  return findingFieldDetailList.reduce((result, field, index, array) => {
+    return result + findingFieldTitleMap[field] + ': ' + findingFieldGetterMap[field](value) + (index < array.length - 1 ? '\n' : '')
+  }, '')
+}
+
+export const getFindingAbsolutePath = (value: Finding): string | null => {
+  if (!workspace.workspaceFolders || value.file_path === null) return null
+
+  return join(workspace.workspaceFolders[0].uri.fsPath, value.file_path)
+}

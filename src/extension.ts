@@ -7,44 +7,15 @@ import AssetApi from './api/modules/AssetApi'
 import FindingApi from './api/modules/FindingApi'
 import ProfileApi from './api/modules/ProfileApi'
 import {AssetType} from './models/Asset'
-import {type Settings, getSavedSettings, saveSettings} from './models/Settings'
-import {severityTitleMap} from './models/Severity'
-import {triageStatusTitleMap} from './models/TriageStatus'
+import {Finding, getFindingAbsolutePath, getFindingDetails} from './models/Finding'
+import {SettingsMessage, getSavedSettings, saveSettings} from './models/Settings'
+import {Severity, severityChoiceMap, severityDecorationMap, severityList, severityTitleMap} from './models/Severity'
+import {TriageStatus} from './models/TriageStatus'
+import {TreeDataProviderFinding} from './providers/TreeDataProviderFinding'
 import {setContext} from './utils/Context'
+import {outputChannel} from './utils/OutputChannel'
 
-let vulnerabilityAnnotations: Vulnerability[] = []
-
-interface Vulnerability {
-    filePath: string
-    line: number // нумерация с 0
-    details: string
-    severity: string
-}
-
-const outputChannel = vscode.window.createOutputChannel('AppSec Portal')
-
-/** Декорации для подсветки уязвимостей по severity */
-
-const severityDecorations: Record<Vulnerability['severity'], vscode.TextEditorDecorationType> = {
-  info: vscode.window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(0, 0, 255, 0.2)',  // синий
-  }),
-  low: vscode.window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(0, 255, 0, 0.2)',  // зеленый
-  }),
-  medium: vscode.window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(255, 255, 0, 0.2)', // желтый
-  }),
-  high: vscode.window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(255, 165, 0, 0.2)', // оранжевый
-  }),
-  critical: vscode.window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(255, 0, 0, 0.3)',   // красный
-    border: '1px solid red',
-  }),
-}
-
-/** Применение декораций в активном редакторе */
+let findingList: Finding[] = []
 
 function applyVulnerabilityDecorations() {
   const editor = vscode.window.activeTextEditor
@@ -53,34 +24,37 @@ function applyVulnerabilityDecorations() {
   }
   const {vuln_highlighting_enabled} = getSavedSettings()
   if (!vuln_highlighting_enabled) {
-    (Object.keys(severityDecorations) as Vulnerability['severity'][]).forEach(sev => {
-      editor.setDecorations(severityDecorations[sev], [])
+    severityList.forEach(severity => {
+      editor.setDecorations(severityDecorationMap[severity], [])
     })
     return
   }
 
   const filePath = editor.document.uri.fsPath
-  const decorationsBySeverity: Record<Vulnerability['severity'], vscode.DecorationOptions[]> = {
-    info: [],
-    low: [],
-    medium: [],
-    high: [],
-    critical: [],
+  const decorationsBySeverity: Record<Severity, vscode.DecorationOptions[]> = {
+    [Severity.INFO]: [],
+    [Severity.LOW]: [],
+    [Severity.MEDIUM]: [],
+    [Severity.HIGH]: [],
+    [Severity.CRITICAL]: [],
   }
 
-  vulnerabilityAnnotations.forEach(vuln => {
-    outputChannel.appendLine('S: ' + vuln.severity)
-    if (path.normalize(vuln.filePath) === path.normalize(filePath)) {
-      const range = editor.document.lineAt(vuln.line).range
-      decorationsBySeverity[vuln.severity].push({
+  findingList.forEach(finding => {
+    const findingPath = getFindingAbsolutePath(finding)
+
+    if (findingPath === null || finding.line === null) return
+
+    if (path.normalize(findingPath) === path.normalize(filePath)) {
+      const range = editor.document.lineAt(finding.line - 1).range
+      decorationsBySeverity[finding.severity].push({
         range,
-        hoverMessage: vuln.details,
+        hoverMessage: getFindingDetails(finding),
       })
     }
-  });
+  })
 
-  (Object.keys(decorationsBySeverity) as Vulnerability['severity'][]).forEach(sev => {
-    editor.setDecorations(severityDecorations[sev], decorationsBySeverity[sev])
+  severityList.forEach(severity => {
+    editor.setDecorations(severityDecorationMap[severity], decorationsBySeverity[severity])
   })
 }
 
@@ -92,23 +66,24 @@ class VulnerabilityCodeLensProvider implements vscode.CodeLensProvider {
 
   provideCodeLenses(document: vscode.TextDocument): vscode.CodeLens[] {
     const codeLenses: vscode.CodeLens[] = []
-    vulnerabilityAnnotations.forEach(vuln => {
-      if (path.normalize(vuln.filePath) === path.normalize(document.uri.fsPath)) {
-        const line = vuln.line
-        const range = document.lineAt(line).range
-        const cmd: vscode.Command = {
-          title: 'Details',
-          command: 'appsec.showDetailsForVulnerability',
-          arguments: [vuln],
-        }
-        codeLenses.push(new vscode.CodeLens(range, cmd))
+    findingList.forEach(item => {
+      const filePath = getFindingAbsolutePath(item)
+
+      if (filePath === null || item.line === null || path.normalize(filePath) !== path.normalize(document.uri.fsPath)) return
+
+      const range = document.lineAt(item.line).range
+      const cmd: vscode.Command = {
+        title: 'Details',
+        command: 'appsec.showDetailsForVulnerability',
+        arguments: [item],
       }
+      codeLenses.push(new vscode.CodeLens(range, cmd))
     })
     return codeLenses
   }
 }
 
-function showDetailsWebview(vuln: Vulnerability) {
+function showDetailsWebview(finding: Finding) {
   const panel = vscode.window.createWebviewPanel(
     'appsecDetails',
     'Подробности уязвимости',
@@ -128,8 +103,8 @@ function showDetailsWebview(vuln: Vulnerability) {
         </style>
     </head>
     <body>
-        <h2>Уязвимость: ${ vuln.severity }</h2>
-        <pre>${ vuln.details }</pre>
+        <h2>Уязвимость: ${ finding.severity }</h2>
+        <pre>${ getFindingDetails(finding) }</pre>
     </body>
     </html>
     `
@@ -163,16 +138,16 @@ function openSettingsPanel() {
     </head>
     <body>
         <h2>Настройки AppSec</h2>
-        <label>Токен:</label>
+        <label>Token:</label>
         <input type="text" id="token" value="${ settings.token }" placeholder="Введите токен" />
         
-        <label>Базовый URL:</label>
+        <label>Base URL:</label>
         <input type="url" id="base_url" value="${ settings.base_url }" placeholder="https://portal-demo.whitespots.io" />
         
         <div class="toggle">
             <label>
-                <input type="checkbox" id="highlighting" ${ settings.vuln_highlighting_enabled ? 'checked' : '' } />
-                Включить подсветку уязвимостей
+                <input type="checkbox" id="vuln_highlighting_enabled" ${ settings.vuln_highlighting_enabled ? 'checked' : '' } />
+                Vunterability highlighting
             </label>
         </div>
         
@@ -180,15 +155,13 @@ function openSettingsPanel() {
         
         <script>
             const vscode = acquireVsCodeApi();
+
             document.getElementById('save').addEventListener('click', () => {
-                const token = document.getElementById('token').value;
-                const baseUrl = document.getElementById('baseUrl').value;
-                const highlighting = document.getElementById('highlighting').checked;
                 vscode.postMessage({
-                    command: 'saveSettings',
-                    token,
-                    baseUrl,
-                    vulnHighlightingEnabled: highlighting
+                    command: 'save_settings',
+                    token: document.getElementById('token').value,
+                    base_url: document.getElementById('base_url').value,
+                    vuln_highlighting_enabled: document.getElementById('vuln_highlighting_enabled').checked,
                 });
             });
         </script>
@@ -196,8 +169,9 @@ function openSettingsPanel() {
     </html>
     `
 
-  panel.webview.onDidReceiveMessage((message: Settings) => {
-    if (message.command === 'saveSettings') {
+  panel.webview.onDidReceiveMessage((message: SettingsMessage) => {
+    vscode.window.showInformationMessage(JSON.stringify(message))
+    if (message.command === 'save_settings') {
       saveSettings(message)
       vscode.window.showInformationMessage('Настройки сохранены!')
       applyVulnerabilityDecorations()
@@ -207,7 +181,7 @@ function openSettingsPanel() {
 }
 
 /** Основная функция проверки уязвимостей. **/
-async function checkVulnerabilities(vulnerabilityProvider: VulnerabilityTreeDataProvider) {
+async function checkVulnerabilities(treeDataProviderFinding: TreeDataProviderFinding) {
   outputChannel.appendLine('Начало проверки уязвимостей')
 
   try {
@@ -258,7 +232,7 @@ async function checkVulnerabilities(vulnerabilityProvider: VulnerabilityTreeData
     outputChannel.appendLine('Запрос уязвимостей...')
     const findingsData = await FindingApi.getList({
       product: selectedAsset.product,
-      triage_status: 2,
+      triage_status: TriageStatus.VERIFIED,
       assets__in: {0: [repoUrl]},
       page: 1,
     })
@@ -268,110 +242,16 @@ async function checkVulnerabilities(vulnerabilityProvider: VulnerabilityTreeData
     }
     outputChannel.appendLine(`Найдено уязвимостей: ${ findingsData.data.count }`)
 
-    vulnerabilityAnnotations = []
-    let noteText = 'Найденные уязвимости:\n\n'
-    findingsData.data.results.forEach((finding) => {
-      noteText += `-----------------------------\n`
-      noteText += `ID: ${ finding.id }\n`
-      noteText += `Название: ${ finding.name }\n`
-      noteText += `Файл: ${ finding.file_path }\n`
-      noteText += `Строка: ${ finding.line }\n`
-      noteText += `nStatus: ${ triageStatusTitleMap[finding.current_sla_level] }\n`
-      noteText += `CVSS: ${ finding.cvss && finding.cvss['3.1'] ? finding.cvss['3.1'].score : 'N/A' }\n`
-      noteText += `Дата верификации: ${ finding.date_verified }\n\n`
-
-      if (finding.file_path && finding.line) {
-        const absoluteFilePath = path.join(workspaceRoot, finding.file_path)
-        const details = `ID: ${ finding.id }\nНазвание: ${ finding.name }\nStatus: ${ triageStatusTitleMap[finding.current_sla_level] }\nCVSS: ${ finding.cvss?.['3.1']?.score || 'N/A' }\nДата: ${ finding.date_verified }`
-        vulnerabilityAnnotations.push({
-          filePath: absoluteFilePath,
-          line: Number(finding.line) - 1,
-          details: details,
-          severity: severityTitleMap[finding.severity],
-        })
-      }
-    })
+    const noteText = 'Найденные уязвимости:\n\n'
+    findingList = findingsData.data.results
     outputChannel.appendLine('ready')
 
     applyVulnerabilityDecorations()
-    vulnerabilityProvider.updateVulnerabilities(vulnerabilityAnnotations)
+    treeDataProviderFinding.updateVulnerabilities(findingList)
     outputChannel.appendLine(noteText)
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error)
-    vscode.window.showErrorMessage(`Ошибка: ${ errorMsg }`)
+    vscode.window.showErrorMessage(`Ошибка: ${ JSON.stringify(error) }`)
     console.error(error)
-  }
-}
-
-/** Реализация TreeView для уязвимостей */
-
-class VulnerabilityTreeItem extends vscode.TreeItem {
-  constructor(
-        public readonly label: string,
-        public readonly filePath: string,
-        public readonly line: number,
-        public readonly severity: Vulnerability['severity'],
-        public readonly command?: vscode.Command,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None,
-  ) {
-    super(label, collapsibleState)
-    this.contextValue = severity
-  }
-}
-
-class VulnerabilityTreeDataProvider implements vscode.TreeDataProvider<VulnerabilityTreeItem> {
-  private _onDidChangeTreeData: vscode.EventEmitter<VulnerabilityTreeItem | undefined | void> = new vscode.EventEmitter<VulnerabilityTreeItem | undefined | void>()
-  readonly onDidChangeTreeData: vscode.Event<VulnerabilityTreeItem | undefined | void> = this._onDidChangeTreeData.event
-
-  private vulnerabilities: Vulnerability[] = []
-  private severityFilter: Vulnerability['severity'] | 'all' = 'all'
-
-  public updateVulnerabilities(vulns: Vulnerability[]) {
-    this.vulnerabilities = vulns
-    this._onDidChangeTreeData.fire()
-  }
-
-  public setFilter(severity: Vulnerability['severity'] | 'all') {
-    this.severityFilter = severity
-    this._onDidChangeTreeData.fire()
-  }
-
-  getTreeItem(element: VulnerabilityTreeItem): vscode.TreeItem {
-    return element
-  }
-
-  getChildren(element?: VulnerabilityTreeItem): Thenable<VulnerabilityTreeItem[]> {
-    if (!element) {
-      const groups: Record<string, Vulnerability[]> = {}
-      this.vulnerabilities.forEach(vuln => {
-        if (this.severityFilter !== 'all' && vuln.severity !== this.severityFilter) {
-          return
-        }
-        groups[vuln.filePath] = groups[vuln.filePath] || []
-        groups[vuln.filePath].push(vuln)
-      })
-      return Promise.resolve(
-        Object.entries(groups).map(([filePath]) => {
-          const label = path.basename(filePath)
-          return new VulnerabilityTreeItem(label, filePath, 0, 'info', undefined, vscode.TreeItemCollapsibleState.Collapsed)
-        }),
-      )
-    } else {
-      const vulns = this.vulnerabilities.filter(vuln => vuln.filePath === element.filePath && (this.severityFilter === 'all' || vuln.severity === this.severityFilter))
-      return Promise.resolve(
-        vulns.map(vuln => new VulnerabilityTreeItem(
-          `Строка ${ vuln.line + 1 } - ${ vuln.severity }`,
-          vuln.filePath,
-          vuln.line,
-          vuln.severity,
-          {
-            command: 'vscode.open',
-            title: 'Открыть файл',
-            arguments: [vscode.Uri.file(vuln.filePath), {selection: new vscode.Range(vuln.line, 0, vuln.line, 0)}],
-          },
-        )),
-      )
-    }
   }
 }
 
@@ -380,18 +260,18 @@ class VulnerabilityTreeDataProvider implements vscode.TreeDataProvider<Vulnerabi
 export function activate(context: vscode.ExtensionContext) {
   setContext(context)
 
-  const vulnerabilityProvider = new VulnerabilityTreeDataProvider()
+  const treeDataProviderFinding = new TreeDataProviderFinding()
 
-  vscode.window.registerTreeDataProvider('appsecVulnerabilities', vulnerabilityProvider)
+  vscode.window.registerTreeDataProvider('appsecVulnerabilities', treeDataProviderFinding)
 
   vscode.languages.registerCodeLensProvider({scheme: 'file'}, new VulnerabilityCodeLensProvider())
 
   vscode.commands.registerCommand('appsecVulnerabilities.setFilter', async () => {
-    const choice = await vscode.window.showQuickPick(['all', 'info', 'low', 'medium', 'high', 'critical'], {
+    const choice = await vscode.window.showQuickPick(severityList.map(severity => severityTitleMap[severity]), {
       placeHolder: 'Выберите уровень severity для фильтрации',
     })
     if (choice) {
-      vulnerabilityProvider.setFilter(choice as Vulnerability['severity'] | 'all')
+      treeDataProviderFinding.setFilter(severityChoiceMap[choice] ?? null)
     }
   })
 
@@ -405,10 +285,10 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.window.showErrorMessage('Токен не привязан. Настройте расширение через "AppSec: Настроить".')
       return
     }
-    await checkVulnerabilities(vulnerabilityProvider)
+    await checkVulnerabilities(treeDataProviderFinding)
   })
 
-  vscode.commands.registerCommand('appsec.showDetailsForVulnerability', (vuln: Vulnerability) => {
+  vscode.commands.registerCommand('appsec.showDetailsForVulnerability', (vuln: Finding) => {
     showDetailsWebview(vuln)
   })
 

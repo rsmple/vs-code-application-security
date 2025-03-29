@@ -1,5 +1,7 @@
 import {defineConfig} from 'vite'
 
+import {URL, fileURLToPath} from 'url'
+
 export default defineConfig({
   build: {
     lib: {
@@ -12,6 +14,11 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
     minify: false,
+  },
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
   },
   define: {
     'process.env.NODE_ENV': '"production"',
