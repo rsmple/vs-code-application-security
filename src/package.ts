@@ -1,5 +1,13 @@
 export const PLUGIN_TITLE = 'Whitespots Application Security'
 
+export enum CommandName {
+  CHECK_FINDINGS = 'appsec.checkVulnerabilities',
+  CONFIGURE = 'appsec.configure',
+  SET_FILTER = 'appsecVulnerabilities.setFilter',
+  FINDING_DETAILS = 'appsec.findingDetails',
+  SET_VIEW_MODE = 'appsec.setViewMode',
+}
+
 export default {
   name: 'whitespots-application-security',
   displayName: PLUGIN_TITLE,
@@ -16,24 +24,24 @@ export default {
   contributes: {
     commands: [
       {
-        command: 'appsec.checkVulnerabilities',
-        title: 'Проверить уязвимости',
+        command: CommandName.CHECK_FINDINGS,
+        title: 'Check vulnerabilities',
       },
       {
-        command: 'appsec.configure',
-        title: 'AppSec: Настроить',
+        command: CommandName.CONFIGURE,
+        title: 'Settings',
       },
       {
-        command: 'appsecVulnerabilities.setFilter',
-        title: 'Фильтр уязвимостей',
+        command: CommandName.SET_FILTER,
+        title: 'Findings Filter',
       },
       {
-        command: 'appsec.showDetails',
-        title: 'Подробности уязвимостей',
+        command: CommandName.FINDING_DETAILS,
+        title: 'Finding details',
       },
       {
-        command: 'appsec.setViewMode',
-        title: 'Подробности уязвимостей',
+        command: CommandName.SET_VIEW_MODE,
+        title: 'Set view mode',
       },
     ],
     configuration: [
@@ -82,17 +90,17 @@ export default {
     menus: {
       'view/title': [
         {
-          command: 'appsec.configure',
+          command: CommandName.CONFIGURE,
           when: 'view == appsecVulnerabilities',
           group: 'navigation',
         },
         {
-          command: 'appsec.setViewMode',
+          command: CommandName.SET_VIEW_MODE,
           when: 'view == appsecVulnerabilities',
           group: 'navigation',
         },
         {
-          command: 'appsec.checkVulnerabilities',
+          command: CommandName.CHECK_FINDINGS,
           when: 'view == appsecVulnerabilities',
           group: 'navigation',
         },

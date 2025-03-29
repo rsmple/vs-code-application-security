@@ -1,8 +1,9 @@
 import * as vscode from 'vscode'
 
 import {Finding, getFindingDetails} from './models/Finding'
-import {SETTINGS} from './models/Settings'
+import {SETTINGS_KEY} from './models/Settings'
 import {severityChoiceMap, severityList, severityTitleMap} from './models/Severity'
+import {CommandName} from './package'
 import {checkFindings} from './providers/CheckFindings'
 import {CodeLensProviderFinding} from './providers/CodeLensProviderFinding'
 import {applyDecorationsFinding} from './providers/DecorationsFinding'
@@ -45,7 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.languages.registerCodeLensProvider({scheme: 'file'}, new CodeLensProviderFinding())
 
-  vscode.commands.registerCommand('appsecVulnerabilities.setFilter', async () => {
+  vscode.commands.registerCommand(CommandName.SET_FILTER, async () => {
     const choice = await vscode.window.showQuickPick(severityList.map(severity => severityTitleMap[severity]), {
       placeHolder: 'Выберите уровень severity для фильтрации',
     })
@@ -54,19 +55,19 @@ export function activate(context: vscode.ExtensionContext) {
     }
   })
 
-  vscode.commands.registerCommand('appsec.configure', () => {
-    vscode.commands.executeCommand('workbench.action.openSettings', SETTINGS)
+  vscode.commands.registerCommand(CommandName.CONFIGURE, () => {
+    vscode.commands.executeCommand('workbench.action.openSettings', SETTINGS_KEY)
   })
 
-  vscode.commands.registerCommand('appsec.checkVulnerabilities', async () => {
+  vscode.commands.registerCommand(CommandName.CHECK_FINDINGS, async () => {
     await checkFindings()
   })
 
-  vscode.commands.registerCommand('appsec.showDetailsForVulnerability', (vuln: Finding) => {
+  vscode.commands.registerCommand(CommandName.FINDING_DETAILS, (vuln: Finding) => {
     showDetailsWebview(vuln)
   })
 
-  vscode.commands.executeCommand('appsec.checkVulnerabilities')
+  vscode.commands.executeCommand(CommandName.CHECK_FINDINGS)
 
   vscode.window.onDidChangeActiveTextEditor(applyDecorationsFinding, null, context.subscriptions)
   vscode.workspace.onDidChangeTextDocument(() => {

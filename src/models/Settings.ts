@@ -14,8 +14,8 @@ export interface SettingsMessage extends Settings {
   command: 'save_settings'
 }
 
-export const SETTINGS = 'appsec'
+export const SETTINGS_KEY = 'appsec'
 
 export const getSettings = (): Settings => {
-  return workspace.getConfiguration(SETTINGS) as unknown as Settings
+  return workspace.getConfiguration(SETTINGS_KEY) as unknown as Settings
 }

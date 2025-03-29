@@ -5,6 +5,7 @@ import WorkspaceState from '@/utils/WorkspaceState'
 import {normalize} from 'path'
 
 import {getFindingAbsolutePath} from '@/models/Finding'
+import {CommandName} from '@/package'
 
 export class CodeLensProviderFinding implements CodeLensProvider {
   private onDidChangeCodeLensesEmitter = new EventEmitter<void>()
@@ -21,7 +22,7 @@ export class CodeLensProviderFinding implements CodeLensProvider {
 
       codeLenses.push(new CodeLens(range, {
         title: 'Details',
-        command: 'appsec.showDetailsForVulnerability',
+        command: CommandName.FINDING_DETAILS,
         arguments: [item],
       }))
     })
