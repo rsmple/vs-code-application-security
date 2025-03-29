@@ -26,28 +26,30 @@ function doFetch<R, D extends RequestData>(method: string, url: string, config?:
 
     const headers = new Headers(config?.data instanceof FormData ? HEADERS_FORMDATA : HEADERS_JSON)
 
-    const {token, base_url} = getSavedSettings()
+    const settings = getSavedSettings()
 
-    if (!base_url) {
+    if (!settings.base.baseURL) {
       window.showErrorMessage('Base URL is not set. Please, setup the extension in "AppSec: Settings".')
       return Promise.reject()
     }
 
     if (!config?.noAuth) {
-      if (!token) {
+      if (!settings.base.token) {
         window.showErrorMessage('Token is not set. Please, setup the extension in "AppSec: Settings".')
         return Promise.reject()
       }
 
-      headers.append('Authorization', 'Token ' + token)
+      headers.append('Authorization', 'Token ' + settings.base.token)
     }
 
     const params = config?.params ? '?' + getURLParams(config.params) : ''
 
-    outputChannel.appendLine((base_url.endsWith('/') ? base_url.slice(0, -1) : base_url) + BASE_URL + url + params)
+    const urlValue = (settings.base.baseURL.endsWith('/') ? settings.base.baseURL.slice(0, -1) : settings.base.baseURL) + BASE_URL + url + params
+
+    outputChannel.appendLine(urlValue)
 
     const request = new Request(
-      (base_url.endsWith('/') ? base_url.slice(0, -1) : base_url) + BASE_URL + url + params,
+      urlValue,
       {
         method: method,
         headers,

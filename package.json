@@ -34,6 +34,31 @@
         "title": "Подробности уязвимостей"
       }
     ],
+    "configuration": [
+      {
+        "title": "Whitespots Plugin",
+        "properties": {
+          "appsec.base.token": {
+            "type": "string",
+            "default": "",
+            "description": "Auth API Token",
+            "order": 1
+          },
+          "appsec.base.baseURL": {
+            "type": "string",
+            "default": "",
+            "description": "External Portal URL",
+            "order": 2
+          },
+          "appsec.personalization.highlight": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable vulnerability highlighting",
+            "order": 3
+          }
+        }
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {

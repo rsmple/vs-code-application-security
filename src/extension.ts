@@ -8,7 +8,7 @@ import FindingApi from './api/modules/FindingApi'
 import ProfileApi from './api/modules/ProfileApi'
 import {AssetType} from './models/Asset'
 import {Finding, getFindingAbsolutePath, getFindingDetails} from './models/Finding'
-import {SettingsMessage, getSavedSettings, saveSettings} from './models/Settings'
+import {SETTINGS, getSavedSettings} from './models/Settings'
 import {Severity, severityChoiceMap, severityDecorationMap, severityList, severityTitleMap} from './models/Severity'
 import {TriageStatus} from './models/TriageStatus'
 import {TreeDataProviderFinding} from './providers/TreeDataProviderFinding'
@@ -22,8 +22,8 @@ function applyVulnerabilityDecorations() {
   if (!editor) {
     return
   }
-  const {vuln_highlighting_enabled} = getSavedSettings()
-  if (!vuln_highlighting_enabled) {
+  const settings = getSavedSettings()
+  if (!settings.personalization.highlight) {
     severityList.forEach(severity => {
       editor.setDecorations(severityDecorationMap[severity], [])
     })
@@ -108,76 +108,6 @@ function showDetailsWebview(finding: Finding) {
     </body>
     </html>
     `
-}
-
-/** Функция открытия настроек в виде WebView */
-function openSettingsPanel() {
-  const settings = getSavedSettings()
-  const panel = vscode.window.createWebviewPanel(
-    'appsecSettings',
-    'Настройки AppSec',
-    vscode.ViewColumn.Active,
-    {
-      enableScripts: true,
-    },
-  )
-
-  panel.webview.html = `
-    <!DOCTYPE html>
-    <html lang="ru">
-    <head>
-        <meta charset="UTF-8">
-        <title>Настройки AppSec</title>
-        <style>
-            body { font-family: sans-serif; padding: 20px; }
-            label { display: block; margin-top: 10px; }
-            input[type="text"], input[type="url"] { width: 100%; padding: 5px; }
-            .toggle { margin-top: 10px; }
-            button { margin-top: 20px; padding: 10px 20px; }
-        </style>
-    </head>
-    <body>
-        <h2>Настройки AppSec</h2>
-        <label>Token:</label>
-        <input type="text" id="token" value="${ settings.token }" placeholder="Введите токен" />
-        
-        <label>Base URL:</label>
-        <input type="url" id="base_url" value="${ settings.base_url }" placeholder="https://portal-demo.whitespots.io" />
-        
-        <div class="toggle">
-            <label>
-                <input type="checkbox" id="vuln_highlighting_enabled" ${ settings.vuln_highlighting_enabled ? 'checked' : '' } />
-                Vunterability highlighting
-            </label>
-        </div>
-        
-        <button id="save">Сохранить настройки</button>
-        
-        <script>
-            const vscode = acquireVsCodeApi();
-
-            document.getElementById('save').addEventListener('click', () => {
-                vscode.postMessage({
-                    command: 'save_settings',
-                    token: document.getElementById('token').value,
-                    base_url: document.getElementById('base_url').value,
-                    vuln_highlighting_enabled: document.getElementById('vuln_highlighting_enabled').checked,
-                });
-            });
-        </script>
-    </body>
-    </html>
-    `
-
-  panel.webview.onDidReceiveMessage((message: SettingsMessage) => {
-    vscode.window.showInformationMessage(JSON.stringify(message))
-    if (message.command === 'save_settings') {
-      saveSettings(message)
-      vscode.window.showInformationMessage('Настройки сохранены!')
-      applyVulnerabilityDecorations()
-      panel.dispose()
-    }
-  })
 }
 
 /** Основная функция проверки уязвимостей. **/
@@ -276,12 +206,12 @@ export function activate(context: vscode.ExtensionContext) {
   })
 
   vscode.commands.registerCommand('appsec.configure', () => {
-    openSettingsPanel()
+    vscode.commands.executeCommand('workbench.action.openSettings', SETTINGS);
   })
 
   vscode.commands.registerCommand('appsec.checkVulnerabilities', async () => {
-    const {token} = getSavedSettings()
-    if (!token) {
+    const settings = getSavedSettings()
+    if (!settings.base.token) {
       vscode.window.showErrorMessage('Токен не привязан. Настройте расширение через "AppSec: Настроить".')
       return
     }
@@ -292,8 +222,8 @@ export function activate(context: vscode.ExtensionContext) {
     showDetailsWebview(vuln)
   })
 
-  const {token} = getSavedSettings()
-  if (token) {
+  const settings = getSavedSettings()
+  if (settings.base.token) {
     vscode.commands.executeCommand('appsec.checkVulnerabilities')
   } else {
     vscode.window.showErrorMessage('Токен не привязан. Настройте расширение через "AppSec: Настроить".')
