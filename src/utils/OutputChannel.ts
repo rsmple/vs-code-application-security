@@ -1,3 +1,5 @@
 import {window} from 'vscode'
 
-export const outputChannel = window.createOutputChannel('AppSec Portal')
+import {PLUGIN_TITLE} from '@/package'
+
+export const outputChannel = window.createOutputChannel(PLUGIN_TITLE)

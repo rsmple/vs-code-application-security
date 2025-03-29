@@ -1,7 +1,7 @@
-import {context} from './Context'
-
 import {Asset} from '@/models/Asset'
 import {Finding} from '@/models/Finding'
+
+import {context} from './Context'
 
 export default {
   get repositoryUrl() {

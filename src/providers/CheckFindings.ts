@@ -5,14 +5,14 @@ import WorkspaceState from '@/utils/WorkspaceState'
 import {existsSync, readFileSync} from 'fs'
 import {join} from 'path'
 
-import {applyDecorationsFinding} from './DecorationsFinding'
-import {treeDataProviderFinding} from './TreeDataProviderFinding'
-
 import AssetApi from '@/api/modules/AssetApi'
 import FindingApi from '@/api/modules/FindingApi'
 import {AssetType} from '@/models/Asset'
 import {TriageStatus} from '@/models/TriageStatus'
 import {outputChannel} from '@/utils/OutputChannel'
+
+import {applyDecorationsFinding} from './DecorationsFinding'
+import {treeDataProviderFinding} from './TreeDataProviderFinding'
 
 const repositoryUrlRegex = /url\s*=\s*(.+)/
 
@@ -121,6 +121,5 @@ const doUpdate = async () => {
 export const checkFindings = async () => {
   return await doUpdate().catch(error => {
     window.showErrorMessage(`Ошибка: ${ JSON.stringify(error) }`)
-    console.error(error)
   })
 }
