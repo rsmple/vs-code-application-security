@@ -1,11 +1,10 @@
-import {outputChannel} from '@/utils/OutputChannel'
-import {workspace, type WorkspaceConfiguration} from 'vscode'
+import {workspace} from 'vscode'
 
 export type Settings = {
   base: {
     token: string
     baseURL: string
-  },
+  }
   personalization: {
     highlight: boolean
   }
@@ -17,6 +16,6 @@ export interface SettingsMessage extends Settings {
 
 export const SETTINGS = 'appsec'
 
-export const getSavedSettings = (): Settings => {
-  return workspace.getConfiguration(SETTINGS) as unknown as Settings;
+export const getSettings = (): Settings => {
+  return workspace.getConfiguration(SETTINGS) as unknown as Settings
 }

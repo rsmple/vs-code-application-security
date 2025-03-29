@@ -2,7 +2,7 @@ import {window} from 'vscode'
 
 import {ApiError, ApiErrorCancel, encodeQueryParams} from 'eco-vue-js/dist/utils/api'
 
-import {getSavedSettings} from '@/models/Settings'
+import {getSettings} from '@/models/Settings'
 import {outputChannel} from '@/utils/OutputChannel'
 
 export const getURLParams = (params: RequestConfig['params']): string => {
@@ -26,7 +26,7 @@ function doFetch<R, D extends RequestData>(method: string, url: string, config?:
 
     const headers = new Headers(config?.data instanceof FormData ? HEADERS_FORMDATA : HEADERS_JSON)
 
-    const settings = getSavedSettings()
+    const settings = getSettings()
 
     if (!settings.base.baseURL) {
       window.showErrorMessage('Base URL is not set. Please, setup the extension in "AppSec: Settings".')

@@ -1,5 +1,7 @@
 import {type Command, type Event, EventEmitter, Range, type TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri} from 'vscode'
 
+import WorkspaceState from '@/utils/WorkspaceState'
+
 import {Finding, getFindingAbsolutePath} from '@/models/Finding'
 import {Severity, severityTitleMap} from '@/models/Severity'
 
@@ -30,17 +32,15 @@ const getCommandFindingOpen = (value: Finding): Command | undefined => {
   return command
 }
 
-export class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding> {
+class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding> {
   private _onDidChangeTreeData: EventEmitter<TreeItemFinding | undefined | void> = new EventEmitter<TreeItemFinding | undefined | void>()
   readonly onDidChangeTreeData: Event<TreeItemFinding | undefined | void> = this._onDidChangeTreeData.event
 
-  private list: Finding[] = []
   private groupList: Record<string, Finding[]> = {}
   private severityFilter: Severity | null = null
 
-  public updateVulnerabilities(list: Finding[]) {
-    this.list = list
-    this.groupList = list.reduce<Record<string, Finding[]>>((result, current) => {
+  public updateList() {
+    this.groupList = WorkspaceState.findingList.reduce<Record<string, Finding[]>>((result, current) => {
       if (current.file_path !== null) {
         if (!result[current.file_path]) result[current.file_path] = []
 
@@ -72,3 +72,5 @@ export class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding
     }
   }
 }
+
+export const treeDataProviderFinding = new TreeDataProviderFinding()
