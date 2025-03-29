@@ -1,41 +1,13 @@
 import * as vscode from 'vscode'
 
-import * as path from 'path'
-
-import {Finding, getFindingAbsolutePath, getFindingDetails} from './models/Finding'
+import {Finding, getFindingDetails} from './models/Finding'
 import {SETTINGS} from './models/Settings'
 import {severityChoiceMap, severityList, severityTitleMap} from './models/Severity'
 import {checkFindings} from './providers/CheckFindings'
+import {CodeLensProviderFinding} from './providers/CodeLensProviderFinding'
 import {applyDecorationsFinding} from './providers/DecorationsFinding'
 import {treeDataProviderFinding} from './providers/TreeDataProviderFinding'
 import {setContext} from './utils/Context'
-
-const findingList: Finding[] = []
-
-/** CodeLens Provider для отображения кнопки Details под каждой уязвимостью */
-
-class VulnerabilityCodeLensProvider implements vscode.CodeLensProvider {
-  private onDidChangeCodeLensesEmitter = new vscode.EventEmitter<void>()
-  public readonly onDidChangeCodeLenses = this.onDidChangeCodeLensesEmitter.event
-
-  provideCodeLenses(document: vscode.TextDocument): vscode.CodeLens[] {
-    const codeLenses: vscode.CodeLens[] = []
-    findingList.forEach(item => {
-      const filePath = getFindingAbsolutePath(item)
-
-      if (filePath === null || item.line === null || path.normalize(filePath) !== path.normalize(document.uri.fsPath)) return
-
-      const range = document.lineAt(item.line).range
-      const cmd: vscode.Command = {
-        title: 'Details',
-        command: 'appsec.showDetailsForVulnerability',
-        arguments: [item],
-      }
-      codeLenses.push(new vscode.CodeLens(range, cmd))
-    })
-    return codeLenses
-  }
-}
 
 function showDetailsWebview(finding: Finding) {
   const panel = vscode.window.createWebviewPanel(
@@ -71,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.window.registerTreeDataProvider('appsecVulnerabilities', treeDataProviderFinding)
 
-  vscode.languages.registerCodeLensProvider({scheme: 'file'}, new VulnerabilityCodeLensProvider())
+  vscode.languages.registerCodeLensProvider({scheme: 'file'}, new CodeLensProviderFinding())
 
   vscode.commands.registerCommand('appsecVulnerabilities.setFilter', async () => {
     const choice = await vscode.window.showQuickPick(severityList.map(severity => severityTitleMap[severity]), {
