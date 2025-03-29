@@ -1,4 +1,4 @@
-import {DecorationOptions, window} from 'vscode'
+import {type DecorationOptions, window} from 'vscode'
 
 import WorkspaceState from '@/utils/WorkspaceState'
 

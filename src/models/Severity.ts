@@ -1,4 +1,4 @@
-import {TextEditorDecorationType, window} from 'vscode'
+import {type TextEditorDecorationType, window} from 'vscode'
 
 export enum Severity {
   CRITICAL = 4,

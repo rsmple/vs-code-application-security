@@ -2,7 +2,7 @@ import {type Command, type Event, EventEmitter, Range, type TreeDataProvider, Tr
 
 import WorkspaceState from '@/utils/WorkspaceState'
 
-import {Finding, getFindingAbsolutePath} from '@/models/Finding'
+import {type Finding, getFindingAbsolutePath} from '@/models/Finding'
 import {Severity, severityTitleMap} from '@/models/Severity'
 
 class TreeItemFinding extends TreeItem {

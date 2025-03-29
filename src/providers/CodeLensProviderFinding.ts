@@ -1,4 +1,4 @@
-import {CodeLens, CodeLensProvider, EventEmitter, TextDocument} from 'vscode'
+import {CodeLens, type CodeLensProvider, EventEmitter, type TextDocument} from 'vscode'
 
 import WorkspaceState from '@/utils/WorkspaceState'
 

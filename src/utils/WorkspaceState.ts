@@ -1,5 +1,5 @@
-import {Asset} from '@/models/Asset'
-import {Finding} from '@/models/Finding'
+import type {Asset} from '@/models/Asset'
+import type {Finding} from '@/models/Finding'
 
 import {context} from './Context'
 

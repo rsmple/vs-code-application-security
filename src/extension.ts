@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 
-import {Finding, getFindingDetails} from './models/Finding'
+import {type Finding, getFindingDetails} from './models/Finding'
 import {SETTINGS_KEY} from './models/Settings'
 import {severityChoiceMap, severityList, severityTitleMap} from './models/Severity'
 import {CommandName} from './package'
