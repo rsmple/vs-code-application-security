@@ -3,96 +3,25 @@ import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
 
-/** Глобальная переменная для хранения аннотаций (найденных уязвимостей) */
+import AssetApi from './api/modules/AssetApi'
+import FindingApi from './api/modules/FindingApi'
+import ProfileApi from './api/modules/ProfileApi'
+import {AssetType} from './models/Asset'
+import {type Settings, getSavedSettings, saveSettings} from './models/Settings'
+import {severityTitleMap} from './models/Severity'
+import {triageStatusTitleMap} from './models/TriageStatus'
+import {setContext} from './utils/Context'
+
 let vulnerabilityAnnotations: Vulnerability[] = []
 
-/** Интерфейсы и типы */
-
-// Интерфейс для уязвимости
 interface Vulnerability {
     filePath: string
     line: number // нумерация с 0
     details: string
-    severity: 'info' | 'low' | 'medium' | 'high' | 'critical'
+    severity: string
 }
 
-// Интерфейс для профиля пользователя
-interface ProfileData {
-    username: string
-    email: string
-}
-
-// Интерфейсы для данных активов
-interface Asset {
-    product: number
-    id: number
-    value: string
-    asset_type: number
-    job_sequence: number | null
-    repository_url_config: number
-    related_objects_meta: {
-        product: {
-            id: number
-            name: string
-            is_default: boolean
-            business_criticality: number
-            related_objects_meta: {
-                product_type: {
-                    name: string
-                }
-            }
-        }
-    }
-    tags: string[]
-    cloud_key_id: string
-    cloud_key_secret: string | null
-    verified_and_assigned_findings_count: number
-    unverified_findings_count: number
-}
-
-interface AssetData {
-    next: string | null
-    previous: string | null
-    current: number
-    count: number
-    pages_count: number
-    results: Asset[]
-}
-
-interface Finding {
-    id: number
-    name: string
-    file_path: string
-    line: string | number
-    status: string
-    cvss?: { [version: string]: { score: number } }
-    date_verified: string
-    severity?: 'info' | 'low' | 'medium' | 'high' | 'critical'
-}
-
-interface FindingsData {
-    next: string | null
-    previous: string | null
-    current: number
-    count: number
-    pages_count: number
-    results: Finding[]
-}
-
-/** Функции для получения настроек */
-
-function saveSettings(context: vscode.ExtensionContext, token: string, baseUrl: string, vulnHighlightingEnabled: boolean) {
-  context.globalState.update('appsecToken', token)
-  context.globalState.update('appsecBaseUrl', baseUrl)
-  context.globalState.update('vulnHighlightingEnabled', vulnHighlightingEnabled)
-}
-
-function getSavedSettings(context: vscode.ExtensionContext): { token?: string, baseUrl?: string, vulnHighlightingEnabled?: boolean } {
-  const token = context.globalState.get<string>('appsecToken')
-  const baseUrl = context.globalState.get<string>('appsecBaseUrl')
-  const vulnHighlightingEnabled = context.globalState.get<boolean>('vulnHighlightingEnabled', true)
-  return {token, baseUrl, vulnHighlightingEnabled}
-}
+const outputChannel = vscode.window.createOutputChannel('AppSec Portal')
 
 /** Декорации для подсветки уязвимостей по severity */
 
@@ -122,8 +51,8 @@ function applyVulnerabilityDecorations() {
   if (!editor) {
     return
   }
-  const {vulnHighlightingEnabled} = getSavedSettings(extensionContext)
-  if (!vulnHighlightingEnabled) {
+  const {vuln_highlighting_enabled} = getSavedSettings()
+  if (!vuln_highlighting_enabled) {
     (Object.keys(severityDecorations) as Vulnerability['severity'][]).forEach(sev => {
       editor.setDecorations(severityDecorations[sev], [])
     })
@@ -140,6 +69,7 @@ function applyVulnerabilityDecorations() {
   }
 
   vulnerabilityAnnotations.forEach(vuln => {
+    outputChannel.appendLine('S: ' + vuln.severity)
     if (path.normalize(vuln.filePath) === path.normalize(filePath)) {
       const range = editor.document.lineAt(vuln.line).range
       decorationsBySeverity[vuln.severity].push({
@@ -206,8 +136,8 @@ function showDetailsWebview(vuln: Vulnerability) {
 }
 
 /** Функция открытия настроек в виде WebView */
-function openSettingsPanel(context: vscode.ExtensionContext) {
-  const {token = '', baseUrl = 'https://portal-demo.whitespots.io', vulnHighlightingEnabled = true} = getSavedSettings(context)
+function openSettingsPanel() {
+  const settings = getSavedSettings()
   const panel = vscode.window.createWebviewPanel(
     'appsecSettings',
     'Настройки AppSec',
@@ -234,14 +164,14 @@ function openSettingsPanel(context: vscode.ExtensionContext) {
     <body>
         <h2>Настройки AppSec</h2>
         <label>Токен:</label>
-        <input type="text" id="token" value="${ token }" placeholder="Введите токен" />
+        <input type="text" id="token" value="${ settings.token }" placeholder="Введите токен" />
         
         <label>Базовый URL:</label>
-        <input type="url" id="baseUrl" value="${ baseUrl }" placeholder="https://portal-demo.whitespots.io" />
+        <input type="url" id="base_url" value="${ settings.base_url }" placeholder="https://portal-demo.whitespots.io" />
         
         <div class="toggle">
             <label>
-                <input type="checkbox" id="highlighting" ${ vulnHighlightingEnabled ? 'checked' : '' } />
+                <input type="checkbox" id="highlighting" ${ settings.vuln_highlighting_enabled ? 'checked' : '' } />
                 Включить подсветку уязвимостей
             </label>
         </div>
@@ -266,9 +196,9 @@ function openSettingsPanel(context: vscode.ExtensionContext) {
     </html>
     `
 
-  panel.webview.onDidReceiveMessage(message => {
+  panel.webview.onDidReceiveMessage((message: Settings) => {
     if (message.command === 'saveSettings') {
-      saveSettings(context, message.token, message.baseUrl, message.vulnHighlightingEnabled)
+      saveSettings(message)
       vscode.window.showInformationMessage('Настройки сохранены!')
       applyVulnerabilityDecorations()
       panel.dispose()
@@ -277,31 +207,14 @@ function openSettingsPanel(context: vscode.ExtensionContext) {
 }
 
 /** Основная функция проверки уязвимостей. **/
-async function checkVulnerabilities(context: vscode.ExtensionContext, vulnerabilityProvider: VulnerabilityTreeDataProvider) {
-  const outputChannel = vscode.window.createOutputChannel('AppSec Portal')
+async function checkVulnerabilities(vulnerabilityProvider: VulnerabilityTreeDataProvider) {
   outputChannel.appendLine('Начало проверки уязвимостей')
 
-  const {token, baseUrl} = getSavedSettings(context)
-  if (!token) {
-    vscode.window.showErrorMessage('Токен не привязан. Пожалуйста, настройте расширение через "AppSec: Настроить".')
-    return
-  }
-  const API_BASE = (baseUrl || 'https://portal-demo.whitespots.io') + '/api/v1'
-
   try {
-    const {default: fetch} = await import('node-fetch')
-
     // Верификация токена
     outputChannel.appendLine('Верификация токена...')
-    const profileResponse = await fetch(`${ API_BASE }/profile/`, {
-      method: 'GET',
-      headers: {
-        accept: 'application/json',
-        Authorization: `Token ${ token }`,
-      },
-    })
-    const profileData = (await profileResponse.json()) as ProfileData
-    outputChannel.appendLine(`Профиль: ${ profileData.username } (${ profileData.email })`)
+    const profileData = await ProfileApi.getItem()
+    outputChannel.appendLine(`Профиль: ${ profileData.data.username } (${ profileData.data.email })`)
 
     if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
       vscode.window.showErrorMessage('Открытых рабочих папок не найдено.')
@@ -323,22 +236,15 @@ async function checkVulnerabilities(context: vscode.ExtensionContext, vulnerabil
     outputChannel.appendLine(`Найден URL репозитория: ${ repoUrl }`)
 
     outputChannel.appendLine('Проверка репозитория в системе...')
-    const assetResponse = await fetch(`${ API_BASE }/product-assets/?asset_type=0&search=${ encodeURIComponent(repoUrl) }`, {
-      method: 'GET',
-      headers: {
-        accept: 'application/json',
-        Authorization: `Token ${ token }`,
-      },
-    })
-    const assetData = (await assetResponse.json()) as AssetData
-    if (!assetData.results || assetData.results.length === 0) {
+    const assetData = await AssetApi.getList({asset_type: AssetType.REPOSITORY, search: repoUrl})
+    if (!assetData.data.results || assetData.data.results.length === 0) {
       vscode.window.showInformationMessage('Репозиторий не найден в системе.')
       return
     }
-    outputChannel.appendLine(`Найдено ${ assetData.results.length } активов для репозитория`)
+    outputChannel.appendLine(`Найдено ${ assetData.data.results.length } активов для репозитория`)
 
-    let selectedAsset = assetData.results[0]
-    for (const asset of assetData.results) {
+    let selectedAsset = assetData.data.results[0]
+    for (const asset of assetData.data.results) {
       if ((asset.verified_and_assigned_findings_count || 0) > (selectedAsset.verified_and_assigned_findings_count || 0)) {
         selectedAsset = asset
       }
@@ -349,51 +255,43 @@ async function checkVulnerabilities(context: vscode.ExtensionContext, vulnerabil
     }
     outputChannel.appendLine(`Используем product id: ${ selectedAsset.product }`)
 
-    const findingsQuery = {
+    outputChannel.appendLine('Запрос уязвимостей...')
+    const findingsData = await FindingApi.getList({
       product: selectedAsset.product,
       triage_status: 2,
       assets__in: {0: [repoUrl]},
       page: 1,
-    }
-    const findingsUrl = `${ API_BASE }/findings/?product=${ findingsQuery.product }&triage_status=${ findingsQuery.triage_status }&assets__in=${ encodeURIComponent(JSON.stringify(findingsQuery.assets__in)) }&page=${ findingsQuery.page }`
-    outputChannel.appendLine('Запрос уязвимостей...')
-    const findingsResponse = await fetch(findingsUrl, {
-      method: 'GET',
-      headers: {
-        accept: 'application/json',
-        Authorization: `Token ${ token }`,
-      },
     })
-    const findingsData = (await findingsResponse.json()) as FindingsData
-    if (!findingsData.results || findingsData.results.length === 0) {
+    if (!findingsData.data.results || findingsData.data.results.length === 0) {
       vscode.window.showInformationMessage('Уязвимости не найдены.')
       return
     }
-    outputChannel.appendLine(`Найдено уязвимостей: ${ findingsData.count }`)
+    outputChannel.appendLine(`Найдено уязвимостей: ${ findingsData.data.count }`)
 
     vulnerabilityAnnotations = []
     let noteText = 'Найденные уязвимости:\n\n'
-    findingsData.results.forEach((finding: Finding) => {
+    findingsData.data.results.forEach((finding) => {
       noteText += `-----------------------------\n`
       noteText += `ID: ${ finding.id }\n`
       noteText += `Название: ${ finding.name }\n`
       noteText += `Файл: ${ finding.file_path }\n`
       noteText += `Строка: ${ finding.line }\n`
-      noteText += `Статус: ${ finding.status }\n`
+      noteText += `nStatus: ${ triageStatusTitleMap[finding.current_sla_level] }\n`
       noteText += `CVSS: ${ finding.cvss && finding.cvss['3.1'] ? finding.cvss['3.1'].score : 'N/A' }\n`
       noteText += `Дата верификации: ${ finding.date_verified }\n\n`
 
       if (finding.file_path && finding.line) {
         const absoluteFilePath = path.join(workspaceRoot, finding.file_path)
-        const details = `ID: ${ finding.id }\nНазвание: ${ finding.name }\nСтатус: ${ finding.status }\nCVSS: ${ finding.cvss?.['3.1']?.score || 'N/A' }\nДата: ${ finding.date_verified }`
+        const details = `ID: ${ finding.id }\nНазвание: ${ finding.name }\nStatus: ${ triageStatusTitleMap[finding.current_sla_level] }\nCVSS: ${ finding.cvss?.['3.1']?.score || 'N/A' }\nДата: ${ finding.date_verified }`
         vulnerabilityAnnotations.push({
           filePath: absoluteFilePath,
           line: Number(finding.line) - 1,
           details: details,
-          severity: finding.severity || 'info',
+          severity: severityTitleMap[finding.severity],
         })
       }
     })
+    outputChannel.appendLine('ready')
 
     applyVulnerabilityDecorations()
     vulnerabilityProvider.updateVulnerabilities(vulnerabilityAnnotations)
@@ -477,12 +375,11 @@ class VulnerabilityTreeDataProvider implements vscode.TreeDataProvider<Vulnerabi
   }
 }
 
-let extensionContext: vscode.ExtensionContext
-
 /** Функция активации расширения */
 
 export function activate(context: vscode.ExtensionContext) {
-  extensionContext = context
+  setContext(context)
+
   const vulnerabilityProvider = new VulnerabilityTreeDataProvider()
 
   vscode.window.registerTreeDataProvider('appsecVulnerabilities', vulnerabilityProvider)
@@ -499,23 +396,23 @@ export function activate(context: vscode.ExtensionContext) {
   })
 
   vscode.commands.registerCommand('appsec.configure', () => {
-    openSettingsPanel(context)
+    openSettingsPanel()
   })
 
   vscode.commands.registerCommand('appsec.checkVulnerabilities', async () => {
-    const {token} = getSavedSettings(context)
+    const {token} = getSavedSettings()
     if (!token) {
       vscode.window.showErrorMessage('Токен не привязан. Настройте расширение через "AppSec: Настроить".')
       return
     }
-    await checkVulnerabilities(context, vulnerabilityProvider)
+    await checkVulnerabilities(vulnerabilityProvider)
   })
 
   vscode.commands.registerCommand('appsec.showDetailsForVulnerability', (vuln: Vulnerability) => {
     showDetailsWebview(vuln)
   })
 
-  const {token} = getSavedSettings(context)
+  const {token} = getSavedSettings()
   if (token) {
     vscode.commands.executeCommand('appsec.checkVulnerabilities')
   } else {

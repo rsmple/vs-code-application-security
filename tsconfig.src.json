@@ -1,6 +1,8 @@
 {
   "include": [
+    "src/types/ui-kit.d.ts",
     "env.d.ts",
+    "src/types/global.d.ts",
     "src/**/*.d.ts",
     "src/**/*.ts"
   ],
@@ -9,9 +11,14 @@
     "target": "ESNext",
     "lib": ["ESNext"],
     "moduleResolution": "node",
-    "outDir": "dist",
+    "outDir": "./dist",
     "baseUrl": ".",
-    "strict": true
+    "strict": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
   "exclude": [
     "node_modules"
