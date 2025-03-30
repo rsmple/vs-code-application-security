@@ -108,11 +108,9 @@ const doUpdate = async () => {
 
   await updateAsset()
 
-  outputChannel.appendLine('Requesting findings...')
-
   await updateFindingList()
 
-  outputChannel.appendLine('ready')
+  outputChannel.appendLine('Vulnerability checking completed')
 
   applyDecorationsFinding()
   treeDataProviderFinding.updateList()
@@ -120,6 +118,6 @@ const doUpdate = async () => {
 
 export const checkFindings = async () => {
   return await doUpdate().catch(error => {
-    window.showErrorMessage(`Ошибка: ${ JSON.stringify(error) }`)
+    window.showErrorMessage(`Error:\n${ JSON.stringify(error, null, 2) }`)
   })
 }

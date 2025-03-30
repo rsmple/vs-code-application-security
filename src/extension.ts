@@ -19,7 +19,7 @@ export function activate(context: ExtensionContext) {
 
   commands.registerCommand(CommandName.SET_FILTER, async () => {
     const choice = await window.showQuickPick(severityList.map(severity => severityTitleMap[severity]), {
-      placeHolder: 'Выберите уровень severity для фильтрации',
+      placeHolder: 'Choose severity level',
     })
     if (choice) {
       treeDataProviderFinding.setFilter(severityChoiceMap[choice] ?? null)
@@ -30,15 +30,14 @@ export function activate(context: ExtensionContext) {
     commands.executeCommand('workbench.action.openSettings', SETTINGS_KEY)
   })
 
-  commands.registerCommand(CommandName.CHECK_FINDINGS, async () => {
-    await checkFindings()
-  })
+  commands.registerCommand(CommandName.CHECK_FINDINGS, checkFindings)
 
   commands.registerCommand(CommandName.FINDING_DETAILS, showDetailsWebview)
 
   commands.executeCommand(CommandName.CHECK_FINDINGS)
 
   window.onDidChangeActiveTextEditor(applyDecorationsFinding, null, context.subscriptions)
+
   workspace.onDidChangeTextDocument(() => {
     applyDecorationsFinding()
   }, null, context.subscriptions)

@@ -1,11 +1,12 @@
 import {ViewColumn, window} from 'vscode'
 
 import {type Finding, getFindingDetails} from '@/models/Finding'
+import {severityTitleMap} from '@/models/Severity'
 
 export const showDetailsWebview = (finding: Finding) => {
   const panel = window.createWebviewPanel(
     'appsecDetails',
-    'Подробности уязвимости',
+    'Finding details',
     {viewColumn: ViewColumn.Beside, preserveFocus: true},
     {},
   )
@@ -15,14 +16,14 @@ export const showDetailsWebview = (finding: Finding) => {
     <html lang="ru">
     <head>
         <meta charset="UTF-8">
-        <title>Подробности уязвимости</title>
+        <title>Finding details</title>
         <style>
             body { font-family: sans-serif; padding: 10px; }
             pre { background: #f0f0f0; padding: 10px; }
         </style>
     </head>
     <body>
-        <h2>Уязвимость: ${ finding.severity }</h2>
+        <h2>${ severityTitleMap[finding.severity] }: ${ finding.name }</h2>
         <pre>${ getFindingDetails(finding) }</pre>
     </body>
     </html>
