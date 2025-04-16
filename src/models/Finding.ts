@@ -1,14 +1,15 @@
 import type {AssetField} from './Asset'
 import type {CVSSVectorWithScore} from './CVSS'
 import type {ProductLite} from './Product'
-import type {Severity} from './Severity'
 
-import {workspace} from 'vscode'
+import {MarkdownString, workspace} from 'vscode'
 
 import {dateFormat} from 'eco-vue-js/dist/utils/dateTime'
 
 import {join} from 'path'
 
+import {getPortalUrl} from './Settings'
+import {type Severity, severityTitleMap} from './Severity'
 import {type TriageStatus, triageStatusTitleMap} from './TriageStatus'
 
 export type FindingRelatedIssue = {
@@ -112,7 +113,6 @@ const findingFieldTitleMap = {
 } as const satisfies Partial<Record<keyof Finding, string>>
 
 const findingFieldDetailList: (keyof typeof findingFieldTitleMap)[] = [
-  'id',
   'current_sla_level',
   'cvss',
   'date_verified',
@@ -126,10 +126,20 @@ const findingFieldGetterMap = {
   date_verified: value => value.date_verified ? dateFormat(new Date(value.date_verified)) : 'N / A',
 } as const satisfies Partial<Record<keyof Finding, (value: Finding) => string>>
 
-export const getFindingDetails = (value: Finding) => {
-  return findingFieldDetailList.reduce((result, field, index, array) => {
-    return result + findingFieldTitleMap[field] + ': ' + findingFieldGetterMap[field](value) + (index < array.length - 1 ? '\n' : '')
-  }, '')
+export const getFindingHoverMessage = (value: Finding) => {
+  const hoverMessage = new MarkdownString()
+
+  hoverMessage.appendMarkdown('## Vulnerability Info\n\n')
+
+  hoverMessage.appendMarkdown(`### [${ value.id }](${ getPortalUrl() }/products/${ value.product }/findings/${ value.id }): ${ value.name } (${ severityTitleMap[value.severity] })\n\n`)
+
+  hoverMessage.appendMarkdown(value.description)
+
+  findingFieldDetailList.forEach((field, index, array) => {
+    hoverMessage.appendMarkdown(findingFieldTitleMap[field] + ': ' + findingFieldGetterMap[field](value) + (index < array.length - 1 ? '\n\n' : ''))
+  })
+
+  return hoverMessage
 }
 
 export const getFindingAbsolutePath = (value: Finding): string | null => {

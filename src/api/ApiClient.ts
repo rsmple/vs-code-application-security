@@ -2,7 +2,7 @@ import {window} from 'vscode'
 
 import {ApiError, ApiErrorCancel, encodeQueryParams} from 'eco-vue-js/dist/utils/api'
 
-import {getSettings} from '@/models/Settings'
+import {getPortalUrl, getSettings} from '@/models/Settings'
 import {outputChannel} from '@/utils/OutputChannel'
 
 export const getURLParams = (params: RequestConfig['params']): string => {
@@ -44,7 +44,7 @@ function doFetch<R, D extends RequestData>(method: string, url: string, config?:
 
     const params = config?.params ? '?' + getURLParams(config.params) : ''
 
-    const urlValue = (settings.base.baseURL.endsWith('/') ? settings.base.baseURL.slice(0, -1) : settings.base.baseURL) + BASE_URL + url + params
+    const urlValue = getPortalUrl() + BASE_URL + url + params
 
     outputChannel.appendLine(urlValue)
 

@@ -5,7 +5,6 @@ import WorkspaceState from '@/utils/WorkspaceState'
 import {normalize} from 'path'
 
 import {getFindingAbsolutePath} from '@/models/Finding'
-import {CommandName} from '@/package'
 
 export class CodeLensProviderFinding implements CodeLensProvider {
   private onDidChangeCodeLensesEmitter = new EventEmitter<void>()
@@ -18,13 +17,13 @@ export class CodeLensProviderFinding implements CodeLensProvider {
 
       if (filePath === null || item.line === null || normalize(filePath) !== normalize(document.uri.fsPath)) return
 
-      const range = document.lineAt(item.line).range
+      // const range = document.lineAt(item.line).range
 
-      codeLenses.push(new CodeLens(range, {
-        title: 'Details',
-        command: CommandName.FINDING_DETAILS,
-        arguments: [item],
-      }))
+      // codeLenses.push(new CodeLens(range, {
+      //   title: 'Details',
+      //   command: CommandName.FINDING_DETAILS,
+      //   arguments: [item],
+      // }))
     })
     return codeLenses
   }

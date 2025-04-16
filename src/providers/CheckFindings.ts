@@ -83,6 +83,34 @@ const updateAsset = async () => {
   WorkspaceState.asset = selectedAsset
 }
 
+const getFindings = async (repositoryUrl: string, page = 1) => {
+  const response = await FindingApi.getList({
+    triage_status: TriageStatus.VERIFIED,
+    assets__in: {0: [repositoryUrl]},
+    page,
+    ordering: '-severity',
+  })
+
+  if (page === 1 && !response.data.results) {
+    showErrorMessage(`No findings to show for repository ${ repositoryUrl }`, viewFindings)
+    return
+  }
+
+  const message = `Findings: ${ response.data.count }`
+  viewFindings.message = message
+  outputChannel.appendLine(message)
+
+  if (page === 1) WorkspaceState.findingList = response.data.results
+  else WorkspaceState.findingList.push(...response.data.results)
+
+  applyDecorationsFinding()
+  treeDataProviderFinding.updateList()
+
+  if (response.data.pages_count > page) {
+    await getFindings(repositoryUrl, page + 1)
+  }
+}
+
 const updateFindingList = async () => {
   const repositoryUrl = WorkspaceState.repositoryUrl
   const asset = WorkspaceState.asset
@@ -91,26 +119,9 @@ const updateFindingList = async () => {
 
   outputChannel.appendLine('Requesting findings...')
 
-  const response = await FindingApi.getList({
-    product: asset.product,
-    triage_status: TriageStatus.VERIFIED,
-    assets__in: {0: [repositoryUrl]},
-    page: 1,
-    ordering: '-severity',
-  })
+  await getFindings(repositoryUrl)
 
-  if (!response.data.results) {
-    showErrorMessage(`No findings to show for repository ${ repositoryUrl }`, viewFindings)
-    return
-  }
-
-  const message = `Findings: ${ response.data.count }`
-
-  viewFindings.message = message
-
-  outputChannel.appendLine(message)
-
-  WorkspaceState.findingList = response.data.results
+  outputChannel.appendLine('Vulnerability checking completed')
 }
 
 const doUpdate = async () => {
@@ -121,12 +132,6 @@ const doUpdate = async () => {
   await updateAsset()
 
   await updateFindingList()
-
-  outputChannel.appendLine('Vulnerability checking completed')
-
-  applyDecorationsFinding()
-
-  treeDataProviderFinding.updateList()
 }
 
 export const checkFindings = async () => {

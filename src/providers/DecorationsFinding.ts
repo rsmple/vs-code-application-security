@@ -4,7 +4,7 @@ import WorkspaceState from '@/utils/WorkspaceState'
 
 import {normalize} from 'path'
 
-import {getFindingAbsolutePath, getFindingDetails} from '@/models/Finding'
+import {getFindingAbsolutePath, getFindingHoverMessage} from '@/models/Finding'
 import {getSettings} from '@/models/Settings'
 import {Severity, severityDecorationMap, severityList} from '@/models/Severity'
 
@@ -38,7 +38,7 @@ export const applyDecorationsFinding = () => {
     const range = editor.document.lineAt(item.line - 1).range
     decorationsBySeverity[item.severity].push({
       range,
-      hoverMessage: getFindingDetails(item),
+      hoverMessage: getFindingHoverMessage(item),
     })
   })
 

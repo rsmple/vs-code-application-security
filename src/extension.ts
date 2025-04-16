@@ -6,7 +6,6 @@ import {CommandName} from './package'
 import {checkFindings} from './providers/CheckFindings'
 import {CodeLensProviderFinding} from './providers/CodeLensProviderFinding'
 import {applyDecorationsFinding} from './providers/DecorationsFinding'
-import {showDetailsWebview} from './providers/FindingDetailsWebview'
 import {treeDataProviderFinding} from './providers/TreeDataProviderFinding'
 import {setContext} from './utils/Context'
 
@@ -29,8 +28,6 @@ export function activate(context: ExtensionContext) {
   })
 
   commands.registerCommand(CommandName.CHECK_FINDINGS, checkFindings)
-
-  commands.registerCommand(CommandName.FINDING_DETAILS, showDetailsWebview)
 
   commands.executeCommand(CommandName.CHECK_FINDINGS)
 

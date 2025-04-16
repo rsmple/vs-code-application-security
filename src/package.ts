@@ -4,7 +4,6 @@ export enum CommandName {
   CHECK_FINDINGS = 'checkVulnerabilities',
   CONFIGURE = 'configure',
   SET_FILTER = 'setFilter',
-  FINDING_DETAILS = 'findingDetails',
   SET_VIEW_MODE = 'setViewMode',
 }
 
@@ -40,10 +39,6 @@ export default {
       {
         command: CommandName.SET_FILTER,
         title: 'Findings Filter',
-      },
-      {
-        command: CommandName.FINDING_DETAILS,
-        title: 'Finding details',
       },
       {
         command: CommandName.SET_VIEW_MODE,

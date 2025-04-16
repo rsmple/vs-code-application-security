@@ -28,19 +28,18 @@ export const severityChoiceMap: Record<string, Severity> = Object.fromEntries(Ob
 
 export const severityDecorationMap: Record<Severity, TextEditorDecorationType> = {
   [Severity.INFO]: window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(0, 0, 255, 0.2)',
+    backgroundColor: '#75acff20',
   }),
   [Severity.LOW]: window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(0, 255, 0, 0.2)',
+    backgroundColor: '#8cff7330',
   }),
   [Severity.MEDIUM]: window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(255, 255, 0, 0.2)',
+    backgroundColor: '#fff06b45',
   }),
   [Severity.HIGH]: window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(255, 165, 0, 0.2)',
+    backgroundColor: '#ffbc7035',
   }),
   [Severity.CRITICAL]: window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(255, 0, 0, 0.3)',
-    border: '1px solid red',
+    backgroundColor: '#ff757520',
   }),
 }

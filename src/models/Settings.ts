@@ -19,3 +19,9 @@ export const SETTINGS_KEY = 'appsec'
 export const getSettings = (): Settings => {
   return workspace.getConfiguration(SETTINGS_KEY) as unknown as Settings
 }
+
+export const getPortalUrl = (): string => {
+  const url = getSettings().base.baseURL
+
+  return url.endsWith('/') ? url.slice(0, -1) : url
+}
