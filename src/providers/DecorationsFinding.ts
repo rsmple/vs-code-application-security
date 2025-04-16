@@ -1,23 +1,31 @@
-import {type DecorationOptions, window} from 'vscode'
+import {type DecorationOptions, window, workspace} from 'vscode'
 
-import WorkspaceState from '@/utils/WorkspaceState'
-
-import {normalize} from 'path'
-
-import {getFindingAbsolutePath, getFindingHoverMessage} from '@/models/Finding'
+import {getFindingHoverMessage} from '@/models/Finding'
 import {getSettings} from '@/models/Settings'
 import {Severity, severityDecorationMap, severityList} from '@/models/Severity'
 
-export const applyDecorationsFinding = () => {
+import {treeDataProviderFinding} from './TreeDataProviderFinding'
+
+const resetDecorations = () => {
   const editor = window.activeTextEditor
   if (!editor) return
 
+  severityList.forEach(severity => {
+    editor.setDecorations(severityDecorationMap[severity], [])
+  })
+}
+
+export const applyDecorationsFinding = () => {
+  const editor = window.activeTextEditor
+
+  if (!editor) return
+
+  const findingList = treeDataProviderFinding.groupList[workspace.asRelativePath(editor.document.uri, false)]
+
   const settings = getSettings()
 
-  if (!settings.personalization.highlight) {
-    severityList.forEach(severity => {
-      editor.setDecorations(severityDecorationMap[severity], [])
-    })
+  if (!settings.personalization.highlight || !findingList?.length) {
+    resetDecorations()
 
     return
   }
@@ -30,12 +38,11 @@ export const applyDecorationsFinding = () => {
     [Severity.CRITICAL]: [],
   }
 
-  WorkspaceState.findingList.forEach(item => {
-    const filePath = getFindingAbsolutePath(item)
-
-    if (filePath === null || item.line === null || normalize(filePath) !== normalize(editor.document.uri.fsPath)) return
+  findingList.forEach(item => {
+    if (item.line === null) return
 
     const range = editor.document.lineAt(item.line - 1).range
+
     decorationsBySeverity[item.severity].push({
       range,
       hoverMessage: getFindingHoverMessage(item),

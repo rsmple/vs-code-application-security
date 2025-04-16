@@ -24,7 +24,7 @@ export const severityTitleMap: Record<Severity, string> = {
   [Severity.INFO]: 'Info',
 }
 
-export const severityChoiceMap: Record<string, Severity> = Object.fromEntries(Object.entries(severityTitleMap).map(item => item.reverse()))
+export const severityChoiceMap: Record<string, Severity> = Object.fromEntries(Object.entries(severityTitleMap).map(item => [item[1], Number(item[0])]))
 
 export const severityDecorationMap: Record<Severity, TextEditorDecorationType> = {
   [Severity.INFO]: window.createTextEditorDecorationType({

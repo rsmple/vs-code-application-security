@@ -4,7 +4,6 @@ export enum CommandName {
   CHECK_FINDINGS = 'checkVulnerabilities',
   CONFIGURE = 'configure',
   SET_FILTER = 'setFilter',
-  SET_VIEW_MODE = 'setViewMode',
 }
 
 export enum ViewName {
@@ -39,10 +38,7 @@ export default {
       {
         command: CommandName.SET_FILTER,
         title: 'Findings Filter',
-      },
-      {
-        command: CommandName.SET_VIEW_MODE,
-        title: 'Set view mode',
+        icon: '$(filter)',
       },
     ],
     configuration: [
@@ -91,7 +87,7 @@ export default {
     menus: {
       'view/title': [
         {
-          command: CommandName.SET_VIEW_MODE,
+          command: CommandName.SET_FILTER,
           when: `view == ${ ViewName.FINDINGS }`,
           group: 'navigation',
         },

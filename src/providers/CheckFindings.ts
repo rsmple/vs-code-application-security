@@ -10,23 +10,28 @@ import FindingApi from '@/api/modules/FindingApi'
 import {AssetType} from '@/models/Asset'
 import {TriageStatus} from '@/models/TriageStatus'
 import {outputChannel} from '@/utils/OutputChannel'
-import {showErrorMessage} from '@/utils/errorMessage'
 
 import {applyDecorationsFinding} from './DecorationsFinding'
-import {treeDataProviderFinding, viewFindings} from './TreeDataProviderFinding'
+import {setLoading, setMessage, stopLoading, treeDataProviderFinding} from './TreeDataProviderFinding'
 
 const repositoryUrlRegex = /url\s*=\s*(.+)/
 
+export const showErrorMessage = (text: string) => {
+  window.showErrorMessage(text)
+
+  setMessage(text)
+}
+
 const updateRepositoryUrl = (): string | undefined => {
   if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
-    showErrorMessage('No opened workspace folders.', viewFindings)
+    showErrorMessage('No opened workspace folders.')
     return
   }
 
   const gitConfigPath = join(workspace.workspaceFolders[0].uri.fsPath, '.git', 'config')
 
   if (!existsSync(gitConfigPath)) {
-    showErrorMessage('.git/config is not found on project root', viewFindings)
+    showErrorMessage('.git/config is not found on project root')
     return
   }
 
@@ -34,7 +39,7 @@ const updateRepositoryUrl = (): string | undefined => {
   const repoUrlMatch = gitConfigContent.match(repositoryUrlRegex)
 
   if (!repoUrlMatch) {
-    showErrorMessage('Failed to extract repository URL from .git/config', viewFindings)
+    showErrorMessage('Failed to extract repository URL from .git/config')
     return
   }
 
@@ -60,7 +65,7 @@ const updateAsset = async () => {
     WorkspaceState.findingList = []
 
     outputChannel.appendLine('No assets for repository')
-    showErrorMessage(`Repository ${ repositoryUrl } is not found in portal`, viewFindings)
+    showErrorMessage(`Repository ${ repositoryUrl } is not found in portal`)
     return
   }
 
@@ -74,7 +79,7 @@ const updateAsset = async () => {
   }
 
   if (!selectedAsset.verified_and_assigned_findings_count) {
-    showErrorMessage(`No verified findings for repository ${ repositoryUrl }`, viewFindings)
+    showErrorMessage(`No verified findings for repository ${ repositoryUrl }`)
     return
   }
 
@@ -92,12 +97,11 @@ const getFindings = async (repositoryUrl: string, page = 1) => {
   })
 
   if (page === 1 && !response.data.results) {
-    showErrorMessage(`No findings to show for repository ${ repositoryUrl }`, viewFindings)
+    showErrorMessage(`No findings to show for repository ${ repositoryUrl }`)
     return
   }
 
   const message = `Findings: ${ response.data.count }`
-  viewFindings.message = message
   outputChannel.appendLine(message)
 
   if (page === 1) WorkspaceState.findingList = response.data.results
@@ -127,11 +131,15 @@ const updateFindingList = async () => {
 const doUpdate = async () => {
   outputChannel.appendLine('Start vulnerability checking')
 
+  setLoading()
+
   updateRepositoryUrl()
 
   await updateAsset()
 
   await updateFindingList()
+
+  stopLoading()
 }
 
 export const checkFindings = async () => {

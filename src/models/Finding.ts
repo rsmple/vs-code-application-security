@@ -129,7 +129,7 @@ const findingFieldGetterMap = {
 export const getFindingHoverMessage = (value: Finding) => {
   const hoverMessage = new MarkdownString()
 
-  hoverMessage.appendMarkdown('## Vulnerability Info\n\n')
+  hoverMessage.appendMarkdown('## Vulnerability details:\n\n')
 
   hoverMessage.appendMarkdown(`### [${ value.id }](${ getPortalUrl() }/products/${ value.product }/findings/${ value.id }): ${ value.name } (${ severityTitleMap[value.severity] })\n\n`)
 

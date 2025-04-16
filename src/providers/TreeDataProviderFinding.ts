@@ -37,24 +37,31 @@ class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding> {
   private _onDidChangeTreeData: EventEmitter<TreeItemFinding | undefined | void> = new EventEmitter<TreeItemFinding | undefined | void>()
   readonly onDidChangeTreeData: Event<TreeItemFinding | undefined | void> = this._onDidChangeTreeData.event
 
-  private groupList: Record<string, Finding[]> = {}
+  public groupList: Record<string, Finding[]> = {}
   private severityFilter: Severity | null = null
 
   public updateList() {
+    let count = 0
+
     this.groupList = WorkspaceState.findingList.reduce<Record<string, Finding[]>>((result, current) => {
-      if (current.file_path !== null) {
+      if (current.file_path !== null && (this.severityFilter === null || current.severity === this.severityFilter)) {
         if (!result[current.file_path]) result[current.file_path] = []
 
         result[current.file_path].push(current)
+        count++
       }
+
       return result
     }, {})
+
+    setMessage(`${ this.severityFilter === null ? 'Findings' : severityTitleMap[this.severityFilter] }: ${ count }`)
+
     this._onDidChangeTreeData.fire()
   }
 
   public setFilter(severity: Severity | null) {
     this.severityFilter = severity
-    this._onDidChangeTreeData.fire()
+    this.updateList()
   }
 
   getTreeItem(element: TreeItemFinding): TreeItem {
@@ -83,6 +90,31 @@ class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding> {
 
 export const treeDataProviderFinding = new TreeDataProviderFinding()
 
-export const viewFindings = window.createTreeView(ViewName.FINDINGS, {
+const viewFindings = window.createTreeView(ViewName.FINDINGS, {
   treeDataProvider: treeDataProviderFinding,
 })
+
+let interval: NodeJS.Timeout | null = null
+
+export const stopLoading = () => {
+  if (interval) clearInterval(interval)
+}
+
+export const setLoading = () => {
+  stopLoading()
+
+  const message = 'Loading '
+  let counter = 1
+
+  interval = setInterval(() => {
+    viewFindings.message = message + '.'.repeat(counter)
+    if (counter < 3) counter++
+    else counter = 1
+  }, 300)
+}
+
+export const setMessage = (value: string) => {
+  stopLoading()
+
+  viewFindings.message = value
+}

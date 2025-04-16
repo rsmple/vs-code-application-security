@@ -15,11 +15,16 @@ export function activate(context: ExtensionContext) {
   languages.registerCodeLensProvider({scheme: 'file'}, new CodeLensProviderFinding())
 
   commands.registerCommand(CommandName.SET_FILTER, async () => {
-    const choice = await window.showQuickPick(severityList.map(severity => severityTitleMap[severity]), {
+    const choice = await window.showQuickPick([
+      'All',
+      ...severityList.map(severity => severityTitleMap[severity]),
+    ], {
       placeHolder: 'Choose severity level',
     })
     if (choice) {
       treeDataProviderFinding.setFilter(severityChoiceMap[choice] ?? null)
+
+      applyDecorationsFinding()
     }
   })
 
