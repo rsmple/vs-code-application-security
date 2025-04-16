@@ -10,22 +10,23 @@ import FindingApi from '@/api/modules/FindingApi'
 import {AssetType} from '@/models/Asset'
 import {TriageStatus} from '@/models/TriageStatus'
 import {outputChannel} from '@/utils/OutputChannel'
+import {showErrorMessage} from '@/utils/errorMessage'
 
 import {applyDecorationsFinding} from './DecorationsFinding'
-import {treeDataProviderFinding} from './TreeDataProviderFinding'
+import {treeDataProviderFinding, viewFindings} from './TreeDataProviderFinding'
 
 const repositoryUrlRegex = /url\s*=\s*(.+)/
 
 const updateRepositoryUrl = (): string | undefined => {
   if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
-    window.showErrorMessage('No opened workspace folders.')
+    showErrorMessage('No opened workspace folders.', viewFindings)
     return
   }
 
   const gitConfigPath = join(workspace.workspaceFolders[0].uri.fsPath, '.git', 'config')
 
   if (!existsSync(gitConfigPath)) {
-    window.showErrorMessage('.git/config is not found on project root')
+    showErrorMessage('.git/config is not found on project root', viewFindings)
     return
   }
 
@@ -33,7 +34,7 @@ const updateRepositoryUrl = (): string | undefined => {
   const repoUrlMatch = gitConfigContent.match(repositoryUrlRegex)
 
   if (!repoUrlMatch) {
-    window.showErrorMessage('Failed to extract repository URL from .git/config')
+    showErrorMessage('Failed to extract repository URL from .git/config', viewFindings)
     return
   }
 
@@ -52,12 +53,18 @@ const updateAsset = async () => {
   outputChannel.appendLine('Requesting repository from portal...')
   const response = await AssetApi.getList({asset_type: AssetType.REPOSITORY, search: repositoryUrl})
 
-  if (!response.data.results || response.data.results.length === 0) {
-    window.showInformationMessage('Repository is not found in portal')
+  const count = response.data.results.length
+
+  if (!response.data.results || count === 0) {
+    WorkspaceState.asset = undefined
+    WorkspaceState.findingList = []
+
+    outputChannel.appendLine('No assets for repository')
+    showErrorMessage(`Repository ${ repositoryUrl } is not found in portal`, viewFindings)
     return
   }
 
-  outputChannel.appendLine(`Found ${ response.data.results.length } asset for repo`)
+  outputChannel.appendLine(`Found ${ count } asset${ count === 1 ? '' : 's' } for repository ${ repositoryUrl }`)
 
   let selectedAsset = response.data.results[0]
   for (const asset of response.data.results) {
@@ -67,7 +74,7 @@ const updateAsset = async () => {
   }
 
   if (!selectedAsset.verified_and_assigned_findings_count) {
-    window.showInformationMessage('No verified findings.')
+    showErrorMessage(`No verified findings for repository ${ repositoryUrl }`, viewFindings)
     return
   }
 
@@ -89,14 +96,19 @@ const updateFindingList = async () => {
     triage_status: TriageStatus.VERIFIED,
     assets__in: {0: [repositoryUrl]},
     page: 1,
+    ordering: '-severity',
   })
 
   if (!response.data.results) {
-    window.showInformationMessage('No findings.')
+    showErrorMessage(`No findings to show for repository ${ repositoryUrl }`, viewFindings)
     return
   }
 
-  outputChannel.appendLine(`Findings count: ${ response.data.count }`)
+  const message = `Findings: ${ response.data.count }`
+
+  viewFindings.message = message
+
+  outputChannel.appendLine(message)
 
   WorkspaceState.findingList = response.data.results
 }
@@ -113,6 +125,7 @@ const doUpdate = async () => {
   outputChannel.appendLine('Vulnerability checking completed')
 
   applyDecorationsFinding()
+
   treeDataProviderFinding.updateList()
 }
 

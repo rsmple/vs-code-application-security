@@ -1,11 +1,15 @@
 export const PLUGIN_TITLE = 'Whitespots Application Security'
 
 export enum CommandName {
-  CHECK_FINDINGS = 'appsec.checkVulnerabilities',
-  CONFIGURE = 'appsec.configure',
-  SET_FILTER = 'appsecVulnerabilities.setFilter',
-  FINDING_DETAILS = 'appsec.findingDetails',
-  SET_VIEW_MODE = 'appsec.setViewMode',
+  CHECK_FINDINGS = 'checkVulnerabilities',
+  CONFIGURE = 'configure',
+  SET_FILTER = 'setFilter',
+  FINDING_DETAILS = 'findingDetails',
+  SET_VIEW_MODE = 'setViewMode',
+}
+
+export enum ViewName {
+  FINDINGS = 'findings'
 }
 
 export default {
@@ -26,10 +30,12 @@ export default {
       {
         command: CommandName.CHECK_FINDINGS,
         title: 'Check vulnerabilities',
+        icon: '$(refresh)',
       },
       {
         command: CommandName.CONFIGURE,
         title: 'Settings',
+        icon: '$(settings-gear)',
       },
       {
         command: CommandName.SET_FILTER,
@@ -81,8 +87,8 @@ export default {
     views: {
       appsec: [
         {
-          id: 'appsecVulnerabilities',
-          name: 'Уязвимости',
+          id: ViewName.FINDINGS,
+          name: 'Findings',
           icon: '../assets/appsec.svg',
         },
       ],
@@ -90,18 +96,18 @@ export default {
     menus: {
       'view/title': [
         {
-          command: CommandName.CONFIGURE,
-          when: 'view == appsecVulnerabilities',
+          command: CommandName.SET_VIEW_MODE,
+          when: `view == ${ ViewName.FINDINGS }`,
           group: 'navigation',
         },
         {
-          command: CommandName.SET_VIEW_MODE,
-          when: 'view == appsecVulnerabilities',
+          command: CommandName.CONFIGURE,
+          when: `view == ${ ViewName.FINDINGS }`,
           group: 'navigation',
         },
         {
           command: CommandName.CHECK_FINDINGS,
-          when: 'view == appsecVulnerabilities',
+          when: `view == ${  ViewName.FINDINGS }`,
           group: 'navigation',
         },
       ],

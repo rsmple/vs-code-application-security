@@ -13,8 +13,6 @@ import {setContext} from './utils/Context'
 export function activate(context: ExtensionContext) {
   setContext(context)
 
-  window.registerTreeDataProvider('appsecVulnerabilities', treeDataProviderFinding)
-
   languages.registerCodeLensProvider({scheme: 'file'}, new CodeLensProviderFinding())
 
   commands.registerCommand(CommandName.SET_FILTER, async () => {

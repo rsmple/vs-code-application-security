@@ -1,9 +1,10 @@
-import {type Command, type Event, EventEmitter, Range, type TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri} from 'vscode'
+import {type Command, type Event, EventEmitter, Range, type TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window} from 'vscode'
 
 import WorkspaceState from '@/utils/WorkspaceState'
 
 import {type Finding, getFindingAbsolutePath} from '@/models/Finding'
 import {Severity, severityTitleMap} from '@/models/Severity'
+import {ViewName} from '@/package'
 
 class TreeItemFinding extends TreeItem {
   constructor(
@@ -62,7 +63,14 @@ class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding> {
 
   getChildren(element?: TreeItemFinding): TreeItemFinding[] {
     if (!element) {
-      return Object.keys(this.groupList).map(path => new TreeItemFinding(this.groupList[path], path, undefined, TreeItemCollapsibleState.Collapsed))
+      return Object.keys(this.groupList)
+        .sort((a, b) => a > b ? 1 : a < b ? -1 : 0)
+        .map(path => new TreeItemFinding(
+          this.groupList[path],
+          `${ path } - ${ this.groupList[path].length }`,
+          undefined,
+          TreeItemCollapsibleState.Collapsed,
+        ))
     } else {
       return element.list.map(item => new TreeItemFinding(
         [],
@@ -74,3 +82,7 @@ class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding> {
 }
 
 export const treeDataProviderFinding = new TreeDataProviderFinding()
+
+export const viewFindings = window.createTreeView(ViewName.FINDINGS, {
+  treeDataProvider: treeDataProviderFinding,
+})
