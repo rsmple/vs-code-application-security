@@ -38,7 +38,11 @@ export function activate(context: ExtensionContext) {
 
   window.onDidChangeActiveTextEditor(applyDecorationsFinding, null, context.subscriptions)
 
-  workspace.onDidChangeTextDocument(() => {
+  workspace.onDidChangeTextDocument(e => {
+    const editor = window.activeTextEditor
+
+    if (!editor || (e.document !== editor.document)) return
+
     applyDecorationsFinding()
   }, null, context.subscriptions)
 }

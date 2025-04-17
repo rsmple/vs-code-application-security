@@ -8,6 +8,7 @@ import {join} from 'path'
 import AssetApi from '@/api/modules/AssetApi'
 import FindingApi from '@/api/modules/FindingApi'
 import {AssetType} from '@/models/Asset'
+import {getFindingAbsolutePath} from '@/models/Finding'
 import {TriageStatus} from '@/models/TriageStatus'
 import {outputChannel} from '@/utils/OutputChannel'
 
@@ -103,6 +104,32 @@ const getFindings = async (repositoryUrl: string, page = 1) => {
 
   const message = `Findings: ${ response.data.count }`
   outputChannel.appendLine(message)
+
+  for (const finding of response.data.results) {
+    if (finding.line === null) {
+      finding.line_text = '[Line is not provided]'
+      continue
+    }
+
+    const path = getFindingAbsolutePath(finding)
+
+    if (!path) {
+      finding.line_text = '[File path is not provided]'
+      continue
+    }
+
+    try {
+      const document = await workspace.openTextDocument(path)
+
+      if (finding.line - 1 <= document.lineCount) {
+        finding.line_text = document.lineAt(finding.line - 1).text
+      } else {
+        finding.line_text = '[Line out of range]'
+      }
+    } catch (err) {
+      finding.line_text = '[File not found or unreadable]'
+    }
+  }
 
   if (page === 1) WorkspaceState.findingList = response.data.results
   else WorkspaceState.findingList.push(...response.data.results)

@@ -35,6 +35,10 @@ type FindingJira = {
   jira_prod_related_issues: FindingRelatedIssue[]
 }
 
+type FindingExtend = {
+  line_text: string
+}
+
 export type Finding = {
   id: number
   name: string
@@ -102,7 +106,7 @@ export type Finding = {
   groups: string[]
 
   cwe_set: number[]
-} & FindingJira & Record<AssetField, string>
+} & FindingJira & Record<AssetField, string> & FindingExtend
 
 const findingFieldTitleMap = {
   id: 'ID',
@@ -138,6 +142,8 @@ export const getFindingHoverMessage = (value: Finding) => {
   findingFieldDetailList.forEach((field, index, array) => {
     hoverMessage.appendMarkdown(findingFieldTitleMap[field] + ': ' + findingFieldGetterMap[field](value) + (index < array.length - 1 ? '\n\n' : ''))
   })
+
+  hoverMessage.appendMarkdown('\n\nText: ' + value.line_text)
 
   return hoverMessage
 }

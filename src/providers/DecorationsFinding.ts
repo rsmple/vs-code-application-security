@@ -3,6 +3,7 @@ import {type DecorationOptions, window, workspace} from 'vscode'
 import {getFindingHoverMessage} from '@/models/Finding'
 import {getSettings} from '@/models/Settings'
 import {Severity, severityDecorationMap, severityList} from '@/models/Severity'
+import {outputChannel} from '@/utils/OutputChannel'
 
 import {treeDataProviderFinding} from './TreeDataProviderFinding'
 
@@ -20,7 +21,9 @@ export const applyDecorationsFinding = () => {
 
   if (!editor) return
 
-  const findingList = treeDataProviderFinding.groupList[workspace.asRelativePath(editor.document.uri, false)]
+  const path = workspace.asRelativePath(editor.document.uri, false)
+
+  const findingList = treeDataProviderFinding.groupList[path]
 
   const settings = getSettings()
 
@@ -41,13 +44,17 @@ export const applyDecorationsFinding = () => {
   findingList.forEach(item => {
     if (item.line === null) return
 
-    const range = editor.document.lineAt(item.line - 1).range
+    const line = editor.document.lineAt(item.line - 1)
+
+    if (line.text !== item.line_text) return
 
     decorationsBySeverity[item.severity].push({
-      range,
+      range: line.range,
       hoverMessage: getFindingHoverMessage(item),
     })
   })
+
+  outputChannel.appendLine(`Applying finding decorations for file ${ path }`)
 
   severityList.forEach(severity => {
     editor.setDecorations(severityDecorationMap[severity], decorationsBySeverity[severity])
