@@ -3,6 +3,8 @@ import {type Plugin, build, resolveConfig} from 'vite'
 import {readFile, writeFile} from 'fs/promises'
 import {resolve} from 'path'
 
+import packageJson from '../package.json' with { type: 'json' }
+
 const SOURCE = 'src/package.ts'
 const LICENSE = 'LICENSE'
 
@@ -43,11 +45,15 @@ export const pluginPackage: Plugin = {
         throw new Error('Default export from package.ts must be an object.')
       }
 
+      const content = {...module.default}
+
+      content.version = packageJson.version
+
       const outputPath = resolve(outDir, 'package.json')
 
       await writeFile(
         outputPath,
-        JSON.stringify(module.default, null, 2),
+        JSON.stringify(content, null, 2),
         'utf-8',
       )
 
