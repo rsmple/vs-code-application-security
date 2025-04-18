@@ -37,6 +37,7 @@ type FindingJira = {
 
 type FindingExtend = {
   line_text: string
+  language: string | undefined
 }
 
 export type Finding = {
@@ -137,13 +138,13 @@ export const getFindingHoverMessage = (value: Finding) => {
 
   hoverMessage.appendMarkdown(`### [${ value.id }](${ getPortalUrl() }/products/${ value.product }/findings/${ value.id }): ${ value.name } (${ severityTitleMap[value.severity] })\n\n`)
 
+  hoverMessage.appendCodeblock(value.line_text, value.language)
+
   hoverMessage.appendMarkdown(value.description)
 
   findingFieldDetailList.forEach((field, index, array) => {
     hoverMessage.appendMarkdown(findingFieldTitleMap[field] + ': ' + findingFieldGetterMap[field](value) + (index < array.length - 1 ? '\n\n' : ''))
   })
-
-  hoverMessage.appendMarkdown('\n\nText: ' + value.line_text)
 
   return hoverMessage
 }

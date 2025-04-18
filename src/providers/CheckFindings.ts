@@ -121,6 +121,8 @@ const getFindings = async (repositoryUrl: string, page = 1) => {
     try {
       const document = await workspace.openTextDocument(path)
 
+      finding.language = document.languageId
+
       if (finding.line - 1 <= document.lineCount) {
         finding.line_text = document.lineAt(finding.line - 1).text
       } else {
