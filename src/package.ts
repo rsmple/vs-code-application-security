@@ -23,7 +23,7 @@ export default {
     'Other',
   ],
   repository: 'https://github.com/rsmple/vs-code-application-security',
-  publisher: 'Whitespots Application Security Extension',
+  publisher: 'WhitespotsApplicationSecurityExtension',
   activationEvents: [],
   main: './extension.cjs',
   contributes: {
