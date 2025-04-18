@@ -80,12 +80,12 @@ export const applyDecorationsFinding = () => {
     if (line.text === item.line_text) {
       decorationsBySeverity[item.severity].push({
         range: line.range,
-        hoverMessage: getFindingHoverMessage(item),
+        hoverMessage: getFindingHoverMessage(item, false),
       })
     } else {
       changedDecorationsBySeverity[item.severity].push({
         range: line.range,
-        hoverMessage: getFindingHoverMessage(item),
+        hoverMessage: getFindingHoverMessage(item, true),
       })
     }
   })

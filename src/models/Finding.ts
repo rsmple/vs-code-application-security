@@ -9,7 +9,7 @@ import {dateFormat} from 'eco-vue-js/dist/utils/dateTime'
 import {join} from 'path'
 
 import {getPortalUrl} from './Settings'
-import {type Severity, severityTitleMap} from './Severity'
+import {type Severity, severityMarkdownMap, severityTitleMap} from './Severity'
 import {type TriageStatus, triageStatusTitleMap} from './TriageStatus'
 
 export type FindingRelatedIssue = {
@@ -131,12 +131,18 @@ const findingFieldGetterMap = {
   date_verified: value => value.date_verified ? dateFormat(new Date(value.date_verified)) : 'N / A',
 } as const satisfies Partial<Record<keyof Finding, (value: Finding) => string>>
 
-export const getFindingHoverMessage = (value: Finding) => {
+export const getFindingHoverMessage = (value: Finding, outdated: boolean) => {
   const hoverMessage = new MarkdownString()
 
-  hoverMessage.appendMarkdown('## Vulnerability details:\n\n')
+  hoverMessage.appendMarkdown(`## Vulnerability${ outdated ? ' (possibly outdated)' : '' }\n\n`)
 
-  hoverMessage.appendMarkdown(`### [${ value.id }](${ getPortalUrl() }/products/${ value.product }/findings/${ value.id }): ${ value.name } (${ severityTitleMap[value.severity] })\n\n`)
+  hoverMessage.appendMarkdown(`${ value.file_path }:${ value.line }\n\n`)
+
+  hoverMessage.appendMarkdown(`[${ value.id }](${ getPortalUrl() }/products/${ value.product }/findings/${ value.id }): ${ value.name }\n\n`)
+
+  hoverMessage.appendMarkdown(`Severity: ${ severityMarkdownMap[value.severity] } ${ severityTitleMap[value.severity] }\n\n`)
+
+  hoverMessage.appendMarkdown('Code snippet:\n\n')
 
   hoverMessage.appendCodeblock(value.line_text, value.language)
 

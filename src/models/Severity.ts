@@ -43,3 +43,11 @@ export const severityDecorationMap: Record<Severity, TextEditorDecorationType> =
     backgroundColor: '#ff757520',
   }),
 }
+
+export const severityMarkdownMap: Record<Severity, string> = {
+  [Severity.INFO]: '🔵',
+  [Severity.LOW]: '🟢',
+  [Severity.MEDIUM]: '🟡',
+  [Severity.HIGH]: '🟠',
+  [Severity.CRITICAL]: '🔴',
+}
