@@ -1,6 +1,6 @@
 {
-  "name": "whitespots-application-security",
-  "description": "Whitespots spplication security plugin for VS Code",
+  "name": "vs-code-application-security",
+  "description": "Whitespots Application Security Extension for VS Code",
   "version": "0.0.1",
   "type": "module",
   "workspaces": [

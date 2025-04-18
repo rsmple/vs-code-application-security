@@ -1,9 +1,10 @@
 import {type Plugin, build, resolveConfig} from 'vite'
 
-import {writeFile} from 'fs/promises'
+import {readFile, writeFile} from 'fs/promises'
 import {resolve} from 'path'
 
 const SOURCE = 'src/package.ts'
+const LICENSE = 'LICENSE'
 
 export const pluginPackage: Plugin = {
   name: 'vite-plugin-package',
@@ -52,6 +53,17 @@ export const pluginPackage: Plugin = {
 
       // eslint-disable-next-line no-console
       console.log(`✓ package.json generated at: ${ outputPath }`)
+
+      const license = await readFile(resolve(LICENSE))
+
+      await writeFile(
+        resolve(resolve(outDir, LICENSE)),
+        license,
+      )
+
+      // eslint-disable-next-line no-console
+      console.log(`✓ ${ LICENSE } generated at: ${ outputPath }`)
+
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('✗ Error generating package.json:', error)

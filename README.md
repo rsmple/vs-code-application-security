@@ -1,71 +1,70 @@
-# test-whitespots README
+# Whitespots Application Security Extension
 
-This is the README for your extension "test-whitespots". After writing up a brief description, we recommend including the following sections.
-
-## Features
-
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+**Description**: A Visual Studio Code extension to integrate with the [Whitespots Application Security Portal](https://www.whitespots.io) and display vulnerabilities related to the current repository.
 
 ---
 
-## Following extension guidelines
+## 🛡️ Overview
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+The **Whitespots Application Security Extension** brings vulnerability insights directly into your VS Code workspace. It connects to your instance of the **Whitespots Application Security Portal** and retrieves detailed information about security issues discovered in your current project repository.
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+This tool is ideal for developers who want to:
 
-## Working with Markdown
+- See real-time vulnerability data in their code editor
+- Quickly identify and fix security issues
+- Stay in sync with the Portal’s scan results
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+---
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+## 🚀 Features
 
-## For more information
+- 🔗 Connect your local project to a Whitespots Portal instance
+- 📂 Automatically detect the current repository and fetch related vulnerabilities
+- 🛠️ View issue descriptions, severity, file paths, and remediation tips
+- 🧭 Navigate from the vulnerability list to affected code locations
+- ♻️ Refresh data with a single click
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+---
 
-**Enjoy!**
+## 🔧 Requirements
+
+- Access to a Whitespots Application Security Portal instance
+- Project repository asset registered and scanned in the Portal
+- Internet access to communicate with the Portal API
+
+---
+
+## 🔌 Installation
+
+1. Open **Visual Studio Code**
+2. Go to the **Extensions** sidebar (`Ctrl+Shift+X`)
+3. Search for **"Whitespots Security"**
+4. Click **Install**
+
+---
+
+## 🛠️ Usage
+
+1. Open a project folder in **Visual Studio Code**
+2. Click on the **Whitespots Security** icon in the sidebar to open the extension panel
+3. In the panel, click the **Settings** (⚙️) button
+4. Enter the following details in the settings form:
+   - **External Portal URL** – the External URL of your Whitespots Application Security Portal instance
+   - **Auth API Token** – authorization API token from the Portal
+
+Once configured, the extension will automatically retrieve and display vulnerabilities related to the current repository.
+
+---
+
+## 🧪 Development & Contributions
+
+This extension is developed and maintained by **Whitespots**.
+
+For feature requests, feedback, or support inquiries, please contact us at [sales@whitespots.io](mailto:sales@whitespots.io).
+
+---
+
+## 📄 License
+
+MIT License  
+© Whitespots
