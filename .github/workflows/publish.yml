@@ -24,5 +24,4 @@ jobs:
         run: npm run build
 
       - name: Publish to VS Code Marketplace
-        run: cd extension
-        run: vsce publish --pat ${{ secrets.VSCE_PAT }}
+        run: cd extension && vsce publish --pat ${{ secrets.VSCE_PAT }}
