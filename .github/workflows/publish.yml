@@ -23,5 +23,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Publish to VS Code Marketplace
-        run: cd extension && vsce publish --pat ${{ secrets.VSCE_PAT }}
+      - name: Publish VS Code Extension
+        run: vsce publish --baseContentUrl "" --baseImagesUrl "" --pat ${{ secrets.VSCE_PAT }}
+        working-directory: ./extension
