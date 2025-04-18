@@ -11,14 +11,14 @@ export enum ViewName {
   FINDINGS = 'appsec.findings'
 }
 
+const logo = './assets/logo.png'
 const icon = './assets/appsec.svg'
 
 export default {
   name: 'whitespots-application-security',
   displayName: PLUGIN_TITLE,
-  icon,
+  icon: logo,
   description: 'An extension to integrate with the Security Portal and display vulnerabilities related to the current repository.',
-  version: '0.0.1',
   engines: {
     vscode: '^1.97.0',
   },
