@@ -133,14 +133,12 @@ const findingFieldGetterMap = {
 
 export const getFindingHoverMessage = (value: Finding, outdated: boolean) => {
   const hoverMessage = new MarkdownString()
-
-  hoverMessage.appendMarkdown(`## Vulnerability${ outdated ? ' (possibly outdated)' : '' }\n\n`)
-
-  hoverMessage.appendMarkdown(`${ value.file_path }:${ value.line }\n\n`)
+  
+  hoverMessage.appendMarkdown(`## ${ severityMarkdownMap[value.severity] } ${ severityTitleMap[value.severity] }${ outdated ? ' (possibly outdated)' : '' }\n\n`)
 
   hoverMessage.appendMarkdown(`[${ value.id }](${ getPortalUrl() }/products/${ value.product }/findings/${ value.id }): ${ value.name }\n\n`)
 
-  hoverMessage.appendMarkdown(`Severity: ${ severityMarkdownMap[value.severity] } ${ severityTitleMap[value.severity] }\n\n`)
+  hoverMessage.appendMarkdown(`${ value.file_path }:${ value.line }\n\n`)
 
   hoverMessage.appendMarkdown('Code snippet:\n\n')
 
