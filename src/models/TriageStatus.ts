@@ -17,3 +17,10 @@ export const triageStatusTitleMap: Record<TriageStatus, string> = {
   [TriageStatus.TEMPORARILY]: 'Temporarily Risk Accepted',
   [TriageStatus.PERMANENTLY]: 'Permanently Risk Accepted',
 }
+
+export type TriageStatusEditable = TriageStatus.UNVERIFIED
+  | TriageStatus.VERIFIED
+  | TriageStatus.RESOLVED
+  | TriageStatus.REJECTED
+  | TriageStatus.TEMPORARILY
+  | TriageStatus.PERMANENTLY

@@ -133,7 +133,7 @@ const findingFieldGetterMap = {
 
 export const getFindingHoverMessage = (value: Finding, outdated: boolean) => {
   const hoverMessage = new MarkdownString()
-  
+
   hoverMessage.appendMarkdown(`## ${ severityMarkdownMap[value.severity] } ${ severityTitleMap[value.severity] }${ outdated ? ' (possibly outdated)' : '' }\n\n`)
 
   hoverMessage.appendMarkdown(`[${ value.id }](${ getPortalUrl() }/products/${ value.product }/findings/${ value.id }): ${ value.name }\n\n`)

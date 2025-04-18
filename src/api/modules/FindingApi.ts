@@ -1,6 +1,6 @@
 import type {AssetType} from '@/models/Asset'
 import type {Finding} from '@/models/Finding'
-import type {TriageStatus} from '@/models/TriageStatus'
+import type {TriageStatus, TriageStatusEditable} from '@/models/TriageStatus'
 
 import {apiClient} from '@/api/ApiClient'
 
@@ -98,8 +98,14 @@ export type QueryParamsFindings = {
   compare_with?: number
 }
 
+export type SetStatusPayload = Pick<Finding, 'accept_duration_days'>
+
 export default {
   getList(params: QueryParamsFindings) {
     return apiClient.get<PaginatedResponse<Finding>>('/findings/', {params})
+  },
+
+  setStatus(id: number, status: TriageStatusEditable, payload: SetStatusPayload | undefined) {
+    return apiClient.post<Finding>(`/findings/${ id }/set-status/${ status }/`, payload)
   },
 }
