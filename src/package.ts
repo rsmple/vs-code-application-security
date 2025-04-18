@@ -14,7 +14,7 @@ export enum ViewName {
 export default {
   name: 'whitespots-application-security',
   displayName: PLUGIN_TITLE,
-  description: '',
+  description: 'Whitespots Application Security Extension for VS Code',
   version: '0.0.1',
   engines: {
     vscode: '^1.97.0',
@@ -22,6 +22,7 @@ export default {
   categories: [
     'Other',
   ],
+  repository: 'https://github.com/rsmple/vs-code-application-security',
   activationEvents: [],
   main: './extension.cjs',
   contributes: {
@@ -76,7 +77,7 @@ export default {
         {
           id: 'appsec',
           title: 'AppSec',
-          icon: '../assets/appsec.svg',
+          icon: './assets/appsec.svg',
         },
       ],
     },
@@ -85,7 +86,7 @@ export default {
         {
           id: ViewName.FINDINGS,
           name: 'Findings',
-          icon: '../assets/appsec.svg',
+          icon: './assets/appsec.svg',
         },
       ],
     },

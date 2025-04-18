@@ -1,12 +1,32 @@
 import {type Plugin, build, resolveConfig} from 'vite'
 
-import {readFile, writeFile} from 'fs/promises'
-import {resolve} from 'path'
+import {copyFile, mkdir, readdir, stat, writeFile} from 'fs/promises'
+import {join, resolve} from 'path'
 
 import packageJson from '../package.json' with { type: 'json' }
 
 const SOURCE = 'src/package.ts'
 const LICENSE = 'LICENSE'
+const VSCODEIGNORE = '.vscodeignore'
+const ASSETS = 'assets'
+
+const copyRecursive = (src: string, dest: string): Promise<void> => {
+  return stat(src).then(stats => {
+    if (stats.isDirectory()) {
+      return mkdir(dest, {recursive: true}).then(() =>
+        readdir(src).then(files =>
+          Promise.all(
+            files.map(file =>
+              copyRecursive(join(src, file), join(dest, file)),
+            ),
+          ).then(() => void 0),
+        ),
+      )
+    } else {
+      return copyFile(src, dest)
+    }
+  })
+}
 
 export const pluginPackage: Plugin = {
   name: 'vite-plugin-package',
@@ -60,15 +80,29 @@ export const pluginPackage: Plugin = {
       // eslint-disable-next-line no-console
       console.log(`✓ package.json generated at: ${ outputPath }`)
 
-      const license = await readFile(resolve(LICENSE))
-
-      await writeFile(
-        resolve(resolve(outDir, LICENSE)),
-        license,
+      await copyFile(
+        resolve(LICENSE),
+        resolve(outDir, LICENSE),
       )
 
       // eslint-disable-next-line no-console
       console.log(`✓ ${ LICENSE } generated at: ${ outputPath }`)
+
+      await writeFile(
+        resolve(outDir, VSCODEIGNORE),
+        `
+../**
+extension.cjs.map
+        `,
+      )
+
+      // eslint-disable-next-line no-console
+      console.log(`✓ ${ VSCODEIGNORE } generated at: ${ outputPath }`)
+
+      await copyRecursive(ASSETS, resolve(outDir, ASSETS))
+
+      // eslint-disable-next-line no-console
+      console.log(`✓ ${ ASSETS } generated at: ${ outputPath }`)
 
     } catch (error) {
       // eslint-disable-next-line no-console

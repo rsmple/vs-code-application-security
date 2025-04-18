@@ -16,3 +16,7 @@ vsc-extension-quickstart.md
 **/*.ts
 **/.vscode-test.*
 build/**
+.github
+package.json
+package-lock.json
+env.d.ts
