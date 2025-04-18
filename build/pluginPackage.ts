@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {type Plugin, build, resolveConfig} from 'vite'
 
 import {copyFile, mkdir, readdir, stat, writeFile} from 'fs/promises'
@@ -9,6 +10,7 @@ const SOURCE = 'src/package.ts'
 const LICENSE = 'LICENSE'
 const VSCODEIGNORE = '.vscodeignore'
 const ASSETS = 'assets'
+const README = 'README.md'
 
 const copyRecursive = (src: string, dest: string): Promise<void> => {
   return stat(src).then(stats => {
@@ -76,17 +78,19 @@ export const pluginPackage: Plugin = {
         JSON.stringify(content, null, 2),
         'utf-8',
       )
-
-      // eslint-disable-next-line no-console
       console.log(`✓ package.json generated at: ${ outputPath }`)
 
       await copyFile(
         resolve(LICENSE),
         resolve(outDir, LICENSE),
       )
-
-      // eslint-disable-next-line no-console
       console.log(`✓ ${ LICENSE } generated at: ${ outputPath }`)
+
+      await copyFile(
+        resolve(README),
+        resolve(outDir, README),
+      )
+      console.log(`✓ ${ README } generated at: ${ outputPath }`)
 
       await writeFile(
         resolve(outDir, VSCODEIGNORE),
@@ -95,17 +99,11 @@ export const pluginPackage: Plugin = {
 extension.cjs.map
         `,
       )
-
-      // eslint-disable-next-line no-console
       console.log(`✓ ${ VSCODEIGNORE } generated at: ${ outputPath }`)
 
       await copyRecursive(ASSETS, resolve(outDir, ASSETS))
-
-      // eslint-disable-next-line no-console
       console.log(`✓ ${ ASSETS } generated at: ${ outputPath }`)
-
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('✗ Error generating package.json:', error)
     }
   },
