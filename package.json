@@ -19,8 +19,7 @@
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "check-types": "tsc --noEmit",
-    "publish": "vsce publish"
+    "check-types": "tsc --noEmit"
   },
   "devDependencies": {
     "@tsconfig/node22": "22.0.1",
@@ -28,12 +27,12 @@
     "@types/vscode": "1.99.1",
     "@vscode/test-cli": "0.0.10",
     "@vscode/test-electron": "2.5.2",
+    "@vscode/vsce": "3.3.2",
     "eco-vue-js": "0.10.35",
     "eslint": "9.25.0",
     "npm-run-all": "4.1.5",
     "typescript": "5.8.3",
-    "vite": "6.3.2",
-    "vsce": "2.15.0"
+    "vite": "6.3.2"
   },
   "dependencies": {
     "node-fetch": "3.3.2"
