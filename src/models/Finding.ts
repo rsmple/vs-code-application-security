@@ -136,6 +136,10 @@ export const getFindingHoverMessage = (value: Finding, outdated: boolean) => {
 
   hoverMessage.appendMarkdown(`## ${ severityMarkdownMap[value.severity] } ${ severityTitleMap[value.severity] }${ outdated ? ' (possibly outdated)' : '' }\n\n`)
 
+  const commandUri = `command:appsec.rejectFinding?${ encodeURIComponent(JSON.stringify([value.id])) }`
+  hoverMessage.appendMarkdown(`[Reject this finding](${ commandUri })\n\n`)
+  hoverMessage.isTrusted = true
+
   hoverMessage.appendMarkdown(`[${ value.id }](${ getPortalUrl() }/products/${ value.product }/findings/${ value.id }): ${ value.name }\n\n`)
 
   hoverMessage.appendMarkdown(`${ value.file_path }:${ value.line }\n\n`)

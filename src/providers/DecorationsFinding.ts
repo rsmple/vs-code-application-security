@@ -6,6 +6,7 @@ import {Severity, severityDecorationMap, severityList} from '@/models/Severity'
 import {outputChannel} from '@/utils/OutputChannel'
 import severityColors from '@/utils/severity'
 
+import {codeLensProviderFinding} from './CodeLensProviderFinding'
 import {treeDataProviderFinding} from './TreeDataProviderFinding'
 
 const severityKeyMap: Record<Severity, keyof typeof severityColors> = {
@@ -96,4 +97,6 @@ export const applyDecorationsFinding = () => {
     editor.setDecorations(severityDecorationMap[severity], decorationsBySeverity[severity])
     editor.setDecorations(changedLineDecorationMap[severity], changedDecorationsBySeverity[severity])
   })
+
+  codeLensProviderFinding.provideCodeLenses(editor.document)
 }

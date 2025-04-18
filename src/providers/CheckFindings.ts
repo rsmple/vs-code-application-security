@@ -136,8 +136,9 @@ const getFindings = async (repositoryUrl: string, page = 1) => {
   if (page === 1) WorkspaceState.findingList = response.data.results
   else WorkspaceState.findingList.push(...response.data.results)
 
-  applyDecorationsFinding()
   treeDataProviderFinding.updateList()
+
+  applyDecorationsFinding()
 
   if (response.data.pages_count > page) {
     await getFindings(repositoryUrl, page + 1)

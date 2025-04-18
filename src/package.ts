@@ -1,13 +1,14 @@
 export const PLUGIN_TITLE = 'Whitespots Application Security'
 
 export enum CommandName {
-  CHECK_FINDINGS = 'checkVulnerabilities',
-  CONFIGURE = 'configure',
-  SET_FILTER = 'setFilter',
+  CHECK_FINDINGS = 'appsec.checkVulnerabilities',
+  CONFIGURE = 'appsec.configure',
+  SET_FILTER = 'appsec.setFilter',
+  REJECT_FINDING = 'appsec.rejectFinding',
 }
 
 export enum ViewName {
-  FINDINGS = 'findings'
+  FINDINGS = 'appsec.findings'
 }
 
 export default {
@@ -39,6 +40,10 @@ export default {
         command: CommandName.SET_FILTER,
         title: 'Findings Filter',
         icon: '$(filter)',
+      },
+      {
+        command: CommandName.REJECT_FINDING,
+        title: 'Reject Finding',
       },
     ],
     configuration: [
