@@ -24,5 +24,4 @@ jobs:
         run: npm run build
 
       - name: Publish VS Code Extension
-        run: npm run publish --baseContentUrl "" --baseImagesUrl "" --pat ${{ secrets.VSCE_PAT }}
-        working-directory: ./extension
+        run: npx vsce publish --pat ${{ secrets.VSCE_PAT }} ./extension
