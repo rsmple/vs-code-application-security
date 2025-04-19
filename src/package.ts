@@ -1,10 +1,14 @@
 export const PLUGIN_TITLE = 'Whitespots Application Security'
 
+export const SETTINGS_KEY = 'appsec'
+
+export const SETTINGS_KEY_CAP = SETTINGS_KEY[0].toLocaleUpperCase() + SETTINGS_KEY.slice(1)
+
 export enum CommandName {
-  CHECK_FINDINGS = 'appsec.checkVulnerabilities',
-  CONFIGURE = 'appsec.configure',
-  SET_FILTER = 'appsec.setFilter',
-  REJECT_FINDING = 'appsec.rejectFinding',
+  CHECK_FINDINGS = `${ SETTINGS_KEY }.checkVulnerabilities`,
+  CONFIGURE = `${ SETTINGS_KEY }.configure`,
+  SET_FILTER = `${ SETTINGS_KEY }.setFilter`,
+  REJECT_FINDING = `${ SETTINGS_KEY }.rejectFinding`,
 }
 
 export enum ViewName {
@@ -62,19 +66,19 @@ export default {
       {
         title: PLUGIN_TITLE,
         properties: {
-          'appsec.base.token': {
+          [`${ SETTINGS_KEY }.base.token`]: {
             type: 'string',
             default: '',
             description: 'Auth API Token',
             order: 1,
           },
-          'appsec.base.baseURL': {
+          [`${ SETTINGS_KEY }.base.baseURL`]: {
             type: 'string',
             default: '',
             description: 'External Portal URL',
             order: 2,
           },
-          'appsec.personalization.highlight': {
+          [`${ SETTINGS_KEY }.personalization.highlight`]: {
             type: 'boolean',
             default: true,
             description: 'Enable vulnerability highlighting',

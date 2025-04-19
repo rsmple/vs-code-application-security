@@ -1,8 +1,8 @@
-import {window} from 'vscode'
-
 import {ApiError, ApiErrorCancel, encodeQueryParams} from 'eco-vue-js/dist/utils/api'
 
 import {getPortalUrl, getSettings} from '@/models/Settings'
+import {SETTINGS_KEY_CAP} from '@/package'
+import {showErrorMessage} from '@/providers/TreeDataProviderFinding'
 import {outputChannel} from '@/utils/OutputChannel'
 
 export const getURLParams = (params: RequestConfig['params']): string => {
@@ -22,20 +22,18 @@ const HEADERS_FORMDATA: Record<string, string> = {
 
 function doFetch<R, D extends RequestData>(method: string, url: string, config?: RequestConfig<D>): Promise<RequestResponse<R, D>> {
   return new Promise(async (resolve, reject) => {
-    const {default: fetch, Request} = await import('node-fetch')
-
     const headers = new Headers(config?.data instanceof FormData ? HEADERS_FORMDATA : HEADERS_JSON)
 
     const settings = getSettings()
 
     if (!settings.base.baseURL) {
-      window.showErrorMessage('Base URL is not set. Please, setup the extension in "AppSec: Settings".')
+      showErrorMessage(`Base URL is not set. Please, setup the extension in "${ SETTINGS_KEY_CAP }: Settings".`)
       return Promise.reject()
     }
 
     if (!config?.noAuth) {
       if (!settings.base.token) {
-        window.showErrorMessage('Token is not set. Please, setup the extension in "AppSec: Settings".')
+        showErrorMessage(`Token is not set. Please, setup the extension in "${ SETTINGS_KEY_CAP }: Settings".`)
         return Promise.reject()
       }
 

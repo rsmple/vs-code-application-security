@@ -13,7 +13,7 @@ export default defineConfig({
       fileName: 'extension',
     },
     rollupOptions: {
-      external: ['vscode', 'node-fetch', 'util', 'path', 'fs'],
+      external: ['vscode', 'util', 'path', 'fs'],
     },
     outDir: 'extension',
     sourcemap: true,

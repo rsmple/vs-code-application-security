@@ -97,7 +97,7 @@ export const pluginPackage: Plugin = {
         `
 ../**
 extension.cjs.map
-        `,
+`,
       )
       console.log(`✓ ${ VSCODEIGNORE } generated at: ${ outputPath }`)
 

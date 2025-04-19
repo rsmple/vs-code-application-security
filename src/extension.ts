@@ -2,15 +2,15 @@ import type {Finding} from './models/Finding'
 
 import {type ExtensionContext, commands, languages, window, workspace} from 'vscode'
 
-import {SETTINGS_KEY} from './models/Settings'
+import FindingApi from './api/modules/FindingApi'
 import {severityChoiceMap, severityList, severityTitleMap} from './models/Severity'
-import {CommandName} from './package'
+import {TriageStatus} from './models/TriageStatus'
+import {CommandName, SETTINGS_KEY} from './package'
 import {checkFindings} from './providers/CheckFindings'
 import {codeLensProviderFinding} from './providers/CodeLensProviderFinding'
 import {applyDecorationsFinding} from './providers/DecorationsFinding'
 import {treeDataProviderFinding} from './providers/TreeDataProviderFinding'
 import {setContext} from './utils/Context'
-import {outputChannel} from './utils/OutputChannel'
 
 export function activate(context: ExtensionContext) {
   setContext(context)
@@ -38,10 +38,9 @@ export function activate(context: ExtensionContext) {
   commands.registerCommand(CommandName.CHECK_FINDINGS, checkFindings)
 
   commands.registerCommand(CommandName.REJECT_FINDING, async (finding: Finding) => {
-    outputChannel.appendLine(JSON.stringify(finding.id))
-    // await FindingApi.setStatus(finding.id, TriageStatus.REJECTED, undefined)
+    await FindingApi.setStatus(finding.id, TriageStatus.REJECTED, undefined)
 
-    // commands.executeCommand(CommandName.CHECK_FINDINGS)
+    commands.executeCommand(CommandName.CHECK_FINDINGS)
   })
 
   commands.executeCommand(CommandName.CHECK_FINDINGS)

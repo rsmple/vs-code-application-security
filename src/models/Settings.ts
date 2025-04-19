@@ -1,5 +1,7 @@
 import {workspace} from 'vscode'
 
+import {SETTINGS_KEY} from '@/package'
+
 export type Settings = {
   base: {
     token: string
@@ -13,8 +15,6 @@ export type Settings = {
 export interface SettingsMessage extends Settings {
   command: 'save_settings'
 }
-
-export const SETTINGS_KEY = 'appsec'
 
 export const getSettings = (): Settings => {
   return workspace.getConfiguration(SETTINGS_KEY) as unknown as Settings

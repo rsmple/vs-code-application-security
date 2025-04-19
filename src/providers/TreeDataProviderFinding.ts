@@ -118,3 +118,9 @@ export const setMessage = (value: string) => {
 
   viewFindings.message = value
 }
+
+export const showErrorMessage = (text: string) => {
+  window.showErrorMessage(text)
+
+  setMessage(text)
+}

@@ -13,15 +13,9 @@ import {TriageStatus} from '@/models/TriageStatus'
 import {outputChannel} from '@/utils/OutputChannel'
 
 import {applyDecorationsFinding} from './DecorationsFinding'
-import {setLoading, setMessage, stopLoading, treeDataProviderFinding} from './TreeDataProviderFinding'
+import {setLoading, showErrorMessage, stopLoading, treeDataProviderFinding} from './TreeDataProviderFinding'
 
 const repositoryUrlRegex = /url\s*=\s*(.+)/
-
-export const showErrorMessage = (text: string) => {
-  window.showErrorMessage(text)
-
-  setMessage(text)
-}
 
 const updateRepositoryUrl = (): string | undefined => {
   if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
