@@ -1,6 +1,6 @@
-export const PLUGIN_TITLE = 'Whitespots Application Security'
+export const PLUGIN_TITLE = 'Whitespots Application Security Portal'
 
-export const SETTINGS_KEY = 'appsec'
+export const SETTINGS_KEY = 'portal'
 
 export const SETTINGS_KEY_CAP = SETTINGS_KEY[0].toLocaleUpperCase() + SETTINGS_KEY.slice(1)
 
@@ -31,13 +31,13 @@ export default {
   ],
   repository: {
     type: 'git',
-    url: 'https://github.com/rsmple/vs-code-application-security',
+    url: 'https://github.com/Whitespots-OU/vscode-portal-extension',
   },
   bugs: {
-    url: 'https://github.com/rsmple/vs-code-application-security/issues',
+    url: 'https://github.com/Whitespots-OU/vscode-portal-extension/issues',
   },
-  homepage: 'https://github.com/rsmple/vs-code-application-security',
-  publisher: 'WhitespotsApplicationSecurityExtension',
+  homepage: 'https://github.com/Whitespots-OU/vscode-portal-extension',
+  publisher: 'Whitespots',
   activationEvents: [],
   main: './extension.cjs',
   contributes: {
@@ -91,7 +91,7 @@ export default {
       activitybar: [
         {
           id: 'appsec',
-          title: 'AppSec',
+          title: SETTINGS_KEY_CAP,
           icon,
         },
       ],

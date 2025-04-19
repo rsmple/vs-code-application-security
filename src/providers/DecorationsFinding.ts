@@ -6,7 +6,6 @@ import {Severity, severityDecorationMap, severityList} from '@/models/Severity'
 import {outputChannel} from '@/utils/OutputChannel'
 import severityColors from '@/utils/severity'
 
-import {codeLensProviderFinding} from './CodeLensProviderFinding'
 import {treeDataProviderFinding} from './TreeDataProviderFinding'
 
 const severityKeyMap: Record<Severity, keyof typeof severityColors> = {
@@ -73,22 +72,40 @@ export const applyDecorationsFinding = () => {
     [Severity.CRITICAL]: [],
   }
 
-  findingList.forEach(item => {
-    if (item.line === null) return
+  const lines = findingList.map(item => item.line).filter((item, index, array): item is number => array.indexOf(item) === index && item !== null)
 
-    const line = editor.document.lineAt(item.line - 1)
+  lines.forEach(line => {
+    const findings = findingList
+      .filter(item => item.line === line)
+      .sort((a, b) => a.severity > b.severity ? 1 : a.severity < b.severity ? -1 : 0)
+      .sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0)
 
-    if (line.text === item.line_text) {
-      decorationsBySeverity[item.severity].push({
-        range: line.range,
-        hoverMessage: getFindingHoverMessage(item, false),
-      })
-    } else {
-      changedDecorationsBySeverity[item.severity].push({
-        range: line.range,
-        hoverMessage: getFindingHoverMessage(item, true),
-      })
-    }
+    if (!findings.length) return
+
+    const finding = findings[0]
+
+    if (finding.line === null) return
+
+    const lineAt = editor.document.lineAt(finding.line - 1)
+
+    const outdated = lineAt.text !== finding.line_text
+
+    const message = getFindingHoverMessage(finding, outdated)
+
+    findings.forEach(item => {
+      if (item === finding) return
+
+      message.appendMarkdown('---')
+
+      message.appendMarkdown(getFindingHoverMessage(item, outdated).value)
+    })
+
+    const target = outdated ? changedDecorationsBySeverity : decorationsBySeverity
+
+    target[finding.severity].push({
+      range: lineAt.range,
+      hoverMessage: message,
+    })
   })
 
   outputChannel.appendLine(`Applying finding decorations for file ${ path }`)
@@ -97,6 +114,4 @@ export const applyDecorationsFinding = () => {
     editor.setDecorations(severityDecorationMap[severity], decorationsBySeverity[severity])
     editor.setDecorations(changedLineDecorationMap[severity], changedDecorationsBySeverity[severity])
   })
-
-  codeLensProviderFinding.provideCodeLenses(editor.document)
 }

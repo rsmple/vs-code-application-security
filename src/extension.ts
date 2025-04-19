@@ -1,21 +1,18 @@
 import type {Finding} from './models/Finding'
 
-import {type ExtensionContext, commands, languages, window, workspace} from 'vscode'
+import {type ExtensionContext, commands, window, workspace} from 'vscode'
 
 import FindingApi from './api/modules/FindingApi'
 import {severityChoiceMap, severityList, severityTitleMap} from './models/Severity'
 import {TriageStatus} from './models/TriageStatus'
 import {CommandName, SETTINGS_KEY} from './package'
 import {checkFindings} from './providers/CheckFindings'
-import {codeLensProviderFinding} from './providers/CodeLensProviderFinding'
 import {applyDecorationsFinding} from './providers/DecorationsFinding'
 import {treeDataProviderFinding} from './providers/TreeDataProviderFinding'
 import {setContext} from './utils/Context'
 
 export function activate(context: ExtensionContext) {
   setContext(context)
-
-  languages.registerCodeLensProvider({scheme: 'file'}, codeLensProviderFinding)
 
   commands.registerCommand(CommandName.SET_FILTER, async () => {
     const choice = await window.showQuickPick([
