@@ -1,6 +1,6 @@
 # Whitespots Application Security Extension
 
-**Description**: A Visual Studio Code extension to integrate with the [Whitespots Application Security Portal](https://www.whitespots.io) and display vulnerabilities related to the current repository.
+**Description**: A Visual Studio Code extension to integrate with the [Whitespots Application Security Portal](https://whitespots.io/) and display vulnerabilities related to the current repository.
 
 ---
 
