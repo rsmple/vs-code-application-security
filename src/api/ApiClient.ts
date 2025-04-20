@@ -26,7 +26,7 @@ function doFetch<R, D extends RequestData>(method: string, url: string, config?:
 
     const settings = getSettings()
 
-    if (!settings.base.baseURL) {
+    if (!settings.base.url) {
       showErrorMessage(`Base URL is not set. Please, setup the extension in "${ SETTINGS_KEY_CAP }: Settings".`)
       return Promise.reject()
     }

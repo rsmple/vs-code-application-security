@@ -40,7 +40,7 @@ const updateRepositoryUrl = (): string | undefined => {
 
   const repositoryUrl = repoUrlMatch[1].trim()
 
-  outputChannel.appendLine(`Fount repository URL: ${ repositoryUrl }`)
+  outputChannel.appendLine(`Found repository URL: ${ repositoryUrl }`)
 
   WorkspaceState.repositoryUrl = repositoryUrl
 }
@@ -167,7 +167,8 @@ const doUpdate = async () => {
 }
 
 export const checkFindings = async () => {
-  return await doUpdate().catch(error => {
-    window.showErrorMessage(`Error:\n${ JSON.stringify(error, null, 2) }`)
-  })
+  return await doUpdate()
+    .catch(error => {
+      window.showErrorMessage(`Error:\n${ JSON.stringify(error, null, 2) }`)
+    })
 }

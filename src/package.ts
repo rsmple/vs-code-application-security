@@ -9,10 +9,11 @@ export enum CommandName {
   CONFIGURE = `${ SETTINGS_KEY }.configure`,
   SET_FILTER = `${ SETTINGS_KEY }.setFilter`,
   REJECT_FINDING = `${ SETTINGS_KEY }.rejectFinding`,
+  SETUP = `${ SETTINGS_KEY }.setup`,
 }
 
 export enum ViewName {
-  FINDINGS = 'appsec.findings'
+  FINDINGS = `${ SETTINGS_KEY }.findings`
 }
 
 const logo = './assets/logo.png'
@@ -38,7 +39,10 @@ export default {
   },
   homepage: 'https://github.com/Whitespots-OU/vscode-portal-extension',
   publisher: 'Whitespots',
-  activationEvents: [],
+  activationEvents: [
+    'onUri',
+    `onCommand:${ CommandName.SETUP }`,
+  ],
   main: './extension.cjs',
   contributes: {
     commands: [
@@ -61,21 +65,25 @@ export default {
         command: CommandName.REJECT_FINDING,
         title: 'Reject Finding',
       },
+      {
+        command: CommandName.SETUP,
+        title: 'Setup',
+      },
     ],
     configuration: [
       {
         title: PLUGIN_TITLE,
         properties: {
+          [`${ SETTINGS_KEY }.base.url`]: {
+            type: 'string',
+            default: '',
+            description: 'External Portal URL',
+            order: 1,
+          },
           [`${ SETTINGS_KEY }.base.token`]: {
             type: 'string',
             default: '',
             description: 'Auth API Token',
-            order: 1,
-          },
-          [`${ SETTINGS_KEY }.base.baseURL`]: {
-            type: 'string',
-            default: '',
-            description: 'External Portal URL',
             order: 2,
           },
           [`${ SETTINGS_KEY }.personalization.highlight`]: {
@@ -124,5 +132,12 @@ export default {
         },
       ],
     },
+  },
+  capabilities: {
+    virtualWorkspaces: true,
+    untrustedWorkspaces: {
+      supported: true,
+    },
+    uriHandler: true,
   },
 } as const
