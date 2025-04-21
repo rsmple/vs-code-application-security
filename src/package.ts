@@ -25,7 +25,7 @@ export default {
   icon: logo,
   description: 'An extension to integrate with the Security Portal and display vulnerabilities related to the current repository.',
   engines: {
-    vscode: '^1.97.0',
+    vscode: '^1.75.0',
   },
   categories: [
     'Other',
