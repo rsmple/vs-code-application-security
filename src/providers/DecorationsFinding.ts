@@ -77,8 +77,8 @@ export const applyDecorationsFinding = () => {
   lines.forEach(line => {
     const findings = findingList
       .filter(item => item.line === line)
-      .sort((a, b) => a.severity > b.severity ? 1 : a.severity < b.severity ? -1 : 0)
       .sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0)
+      .sort((a, b) => a.severity < b.severity ? 1 : a.severity > b.severity ? -1 : 0)
 
     if (!findings.length) return
 
@@ -95,7 +95,7 @@ export const applyDecorationsFinding = () => {
     findings.forEach(item => {
       if (item === finding) return
 
-      message.appendMarkdown('---')
+      message.appendMarkdown('\n\n---\n\n')
 
       message.appendMarkdown(getFindingHoverMessage(item, outdated).value)
     })

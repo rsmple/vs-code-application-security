@@ -1,5 +1,3 @@
-import type {Finding} from './models/Finding'
-
 import {type ExtensionContext, Uri, commands, window, workspace} from 'vscode'
 
 import FindingApi from './api/modules/FindingApi'
@@ -12,6 +10,7 @@ import {applyDecorationsFinding} from './providers/DecorationsFinding'
 import {treeDataProviderFinding} from './providers/TreeDataProviderFinding'
 import {setContext} from './utils/Context'
 import {outputChannel} from './utils/OutputChannel'
+import WorkspaceState from './utils/WorkspaceState'
 
 export function activate(context: ExtensionContext) {
   setContext(context)
@@ -52,10 +51,27 @@ export function activate(context: ExtensionContext) {
 
   commands.registerCommand(CommandName.CHECK_FINDINGS, checkFindings)
 
-  commands.registerCommand(CommandName.REJECT_FINDING, async (finding: Finding) => {
-    await FindingApi.setStatus(finding.id, TriageStatus.REJECTED, undefined)
+  commands.registerCommand(CommandName.REJECT_FINDING, async (findingId: number) => {
+    outputChannel.appendLine(`Reject finding ${ findingId }`)
 
-    commands.executeCommand(CommandName.CHECK_FINDINGS)
+    await FindingApi
+      .setStatus(findingId, TriageStatus.REJECTED, undefined)
+      .then(() => {
+        window.showInformationMessage(`Rejected finding ${ findingId }`)
+
+        const index = WorkspaceState.findingList.findIndex(item => item.id === findingId)
+
+        if (index !== -1) {
+          WorkspaceState.findingList.splice(index, 1)
+          
+          treeDataProviderFinding.updateList()
+
+          applyDecorationsFinding()
+        }
+      })
+      .catch(() => {
+        window.showErrorMessage(`Failed to reject finding ${ findingId }`)
+      })
   })
 
   commands.executeCommand(CommandName.CHECK_FINDINGS)

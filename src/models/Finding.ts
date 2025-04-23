@@ -8,6 +8,8 @@ import {dateFormat} from 'eco-vue-js/dist/utils/dateTime'
 
 import {join} from 'path'
 
+import {CommandName} from '@/package'
+
 import {getPortalUrl} from './Settings'
 import {type Severity, severityMarkdownMap, severityTitleMap} from './Severity'
 import {type TriageStatus, triageStatusTitleMap} from './TriageStatus'
@@ -134,13 +136,13 @@ const findingFieldGetterMap = {
 export const getFindingHoverMessage = (value: Finding, outdated: boolean) => {
   const hoverMessage = new MarkdownString()
 
-  hoverMessage.appendMarkdown(`## ${ severityMarkdownMap[value.severity] } ${ severityTitleMap[value.severity] }${ outdated ? ' (possibly outdated)' : '' }\n\n`)
+  const url = `[${ value.id }](${ getPortalUrl() }/products/${ value.product }/findings/${ value.id })`
 
-  const commandUri = `command:appsec.rejectFinding?${ encodeURIComponent(JSON.stringify([value.id])) }`
+  hoverMessage.appendMarkdown(`## ${ url }: ${ severityMarkdownMap[value.severity] } ${ severityTitleMap[value.severity] } - ${ value.name }${ outdated ? ' (possibly outdated)' : '' }\n\n`)
+
+  const commandUri = `command:${ CommandName.REJECT_FINDING }?${ encodeURIComponent(JSON.stringify(value.id)) }`
   hoverMessage.appendMarkdown(`[Reject this finding](${ commandUri })\n\n`)
   hoverMessage.isTrusted = true
-
-  hoverMessage.appendMarkdown(`[${ value.id }](${ getPortalUrl() }/products/${ value.product }/findings/${ value.id }): ${ value.name }\n\n`)
 
   hoverMessage.appendMarkdown(`${ value.file_path }:${ value.line }\n\n`)
 

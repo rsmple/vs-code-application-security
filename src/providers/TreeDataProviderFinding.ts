@@ -10,6 +10,7 @@ class TreeItemFinding extends TreeItem {
   constructor(
         public readonly list: Finding[],
         public readonly label: string,
+        public readonly path: string | undefined,
         public readonly command?: Command,
         public readonly collapsibleState: TreeItemCollapsibleState = TreeItemCollapsibleState.None,
   ) {
@@ -28,10 +29,12 @@ const getCommandFindingOpen = (value: Finding): Command | undefined => {
     arguments: [Uri.file(filePath)],
   }
 
-  if (value.line !== null) command.arguments?.push({selection: new Range(value.line, 0, value.line, 0)})
+  if (value.line !== null) command.arguments?.push({selection: new Range(value.line - 1, 0, value.line - 1, 0)})
 
   return command
 }
+
+const expandedElements = new Set<string>()
 
 class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding> {
   private _onDidChangeTreeData: EventEmitter<TreeItemFinding | undefined | void> = new EventEmitter<TreeItemFinding | undefined | void>()
@@ -75,13 +78,15 @@ class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding> {
         .map(path => new TreeItemFinding(
           this.groupList[path],
           `${ path } - ${ this.groupList[path].length }`,
+          path,
           undefined,
-          TreeItemCollapsibleState.Collapsed,
+          expandedElements.has(path) ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed,
         ))
     } else {
       return element.list.map(item => new TreeItemFinding(
         [],
-        severityTitleMap[item.severity] + (item.line !== null ? ` - Line ${ item.line }` : ''),
+        `${ severityTitleMap[item.severity] } - ${ item.name }`,
+        undefined,
         getCommandFindingOpen(item),
       ))
     }
@@ -92,6 +97,14 @@ export const treeDataProviderFinding = new TreeDataProviderFinding()
 
 const viewFindings = window.createTreeView(ViewName.FINDINGS, {
   treeDataProvider: treeDataProviderFinding,
+})
+
+viewFindings.onDidExpandElement(e => {
+  if (e.element.path) expandedElements.add(e.element.path)
+})
+
+viewFindings.onDidCollapseElement(e => {
+  if (e.element.path) expandedElements.delete(e.element.path)
 })
 
 let interval: NodeJS.Timeout | null = null
