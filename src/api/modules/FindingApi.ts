@@ -1,5 +1,6 @@
 import type {AssetType} from '@/models/Asset'
 import type {Finding} from '@/models/Finding'
+import type {Tag} from '@/models/Tag'
 import type {TriageStatus, TriageStatusEditable} from '@/models/TriageStatus'
 
 import {apiClient} from '@/api/ApiClient'
@@ -107,5 +108,13 @@ export default {
 
   setStatus(id: number, status: TriageStatusEditable, payload: SetStatusPayload | undefined) {
     return apiClient.post<Finding>(`/findings/${ id }/set-status/${ status }/`, payload)
+  },
+
+  addTag(id: number, tag: Partial<Tag>) {
+    return apiClient.post<Finding>(`/findings/${ id }/tags/add/`, tag)
+  },
+
+  removeTag(id: number, tag: Partial<Tag>) {
+    return apiClient.post<Finding>(`/findings/${ id }/tags/remove/`, tag)
   },
 }

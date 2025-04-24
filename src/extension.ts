@@ -9,6 +9,7 @@ import {checkFindings} from './providers/CheckFindings'
 import {applyDecorationsFinding} from './providers/DecorationsFinding'
 import {treeDataProviderFinding} from './providers/TreeDataProviderFinding'
 import {setContext} from './utils/Context'
+import {getGitEmail} from './utils/GitConfig'
 import {outputChannel} from './utils/OutputChannel'
 import WorkspaceState from './utils/WorkspaceState'
 
@@ -54,8 +55,13 @@ export function activate(context: ExtensionContext) {
   commands.registerCommand(CommandName.REJECT_FINDING, async (findingId: number) => {
     outputChannel.appendLine(`Reject finding ${ findingId }`)
 
-    await FindingApi
-      .setStatus(findingId, TriageStatus.REJECTED, undefined)
+    const email = await getGitEmail()
+
+    await Promise.all([
+      FindingApi.setStatus(findingId, TriageStatus.REJECTED, undefined),
+      FindingApi.addTag(findingId, {name: 'rejected_by_developer'}),
+      email ? FindingApi.addTag(findingId, {name: email}) : undefined,
+    ])
       .then(() => {
         window.showInformationMessage(`Rejected finding ${ findingId }`)
 
@@ -70,7 +76,10 @@ export function activate(context: ExtensionContext) {
         }
       })
       .catch(() => {
-        window.showErrorMessage(`Failed to reject finding ${ findingId }`)
+        const message = `Failed to reject finding ${ findingId }`
+
+        outputChannel.appendLine(message)
+        window.showErrorMessage(message)
       })
   })
 

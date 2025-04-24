@@ -77,7 +77,7 @@ class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding> {
         .sort((a, b) => a > b ? 1 : a < b ? -1 : 0)
         .map(path => new TreeItemFinding(
           this.groupList[path],
-          `${ path } - ${ this.groupList[path].length }`,
+          `${ this.groupList[path].length } - ${ path }`,
           path,
           undefined,
           expandedElements.has(path) ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed,
@@ -85,7 +85,7 @@ class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding> {
     } else {
       return element.list.map(item => new TreeItemFinding(
         [],
-        `${ severityTitleMap[item.severity] } - ${ item.name }`,
+        `L${ item.line } - ${ severityTitleMap[item.severity] } - ${ item.name }`,
         undefined,
         getCommandFindingOpen(item),
       ))

@@ -2,43 +2,29 @@ import {window, workspace} from 'vscode'
 
 import WorkspaceState from '@/utils/WorkspaceState'
 
-import {existsSync, readFileSync} from 'fs'
-import {join} from 'path'
-
 import AssetApi from '@/api/modules/AssetApi'
 import FindingApi from '@/api/modules/FindingApi'
 import {AssetType} from '@/models/Asset'
 import {getFindingAbsolutePath} from '@/models/Finding'
 import {TriageStatus} from '@/models/TriageStatus'
+import {getGitRemoteUrl} from '@/utils/GitConfig'
 import {outputChannel} from '@/utils/OutputChannel'
 
 import {applyDecorationsFinding} from './DecorationsFinding'
 import {setLoading, showErrorMessage, stopLoading, treeDataProviderFinding} from './TreeDataProviderFinding'
 
-const repositoryUrlRegex = /url\s*=\s*(.+)/
-
-const updateRepositoryUrl = (): string | undefined => {
+const updateRepositoryUrl = async () => {
   if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
     showErrorMessage('No opened workspace folders.')
     return
   }
 
-  const gitConfigPath = join(workspace.workspaceFolders[0].uri.fsPath, '.git', 'config')
+  const repositoryUrl = await getGitRemoteUrl(workspace.workspaceFolders[0].uri.fsPath)
 
-  if (!existsSync(gitConfigPath)) {
-    showErrorMessage('.git/config is not found on project root')
-    return
-  }
-
-  const gitConfigContent = readFileSync(gitConfigPath, 'utf8')
-  const repoUrlMatch = gitConfigContent.match(repositoryUrlRegex)
-
-  if (!repoUrlMatch) {
+  if (!repositoryUrl) {
     showErrorMessage('Failed to extract repository URL from .git/config')
     return
   }
-
-  const repositoryUrl = repoUrlMatch[1].trim()
 
   outputChannel.appendLine(`Found repository URL: ${ repositoryUrl }`)
 
@@ -157,7 +143,7 @@ const doUpdate = async () => {
 
   setLoading()
 
-  updateRepositoryUrl()
+  await updateRepositoryUrl()
 
   await updateAsset()
 

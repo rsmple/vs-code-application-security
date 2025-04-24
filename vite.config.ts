@@ -13,7 +13,7 @@ export default defineConfig({
       fileName: 'extension',
     },
     rollupOptions: {
-      external: ['vscode', 'util', 'path', 'fs'],
+      external: ['vscode', 'util', 'path', 'fs', 'child_process'],
     },
     outDir: 'extension',
     sourcemap: true,
