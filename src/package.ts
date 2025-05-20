@@ -1,3 +1,5 @@
+import type {Settings} from '@/models/Settings'
+
 export const PLUGIN_TITLE = 'Whitespots Application Security Portal'
 
 export const SETTINGS_KEY = 'portal'
@@ -18,6 +20,17 @@ export enum ViewName {
 
 const logo = './assets/logo.png'
 const icon = './assets/appsec.svg'
+
+type SettingsKeys = ObjectPaths<Settings, string | boolean | number>
+
+type SettingsSchema = {
+  [Key in keyof SettingsKeys as `${ typeof SETTINGS_KEY }.${ Key }`]: {
+    type: string
+    default: SettingsKeys[Key]
+    description: string
+    order: number
+  }
+}
 
 export default {
   name: 'whitespots-application-security',
@@ -74,25 +87,25 @@ export default {
       {
         title: PLUGIN_TITLE,
         properties: {
-          [`${ SETTINGS_KEY }.base.url`]: {
+          'portal.base.url': {
             type: 'string',
             default: '',
             description: 'External Portal URL',
             order: 1,
           },
-          [`${ SETTINGS_KEY }.base.token`]: {
+          'portal.base.token': {
             type: 'string',
             default: '',
             description: 'Auth API Token',
             order: 2,
           },
-          [`${ SETTINGS_KEY }.personalization.highlight`]: {
+          'portal.personalization.highlight': {
             type: 'boolean',
             default: true,
             description: 'Enable vulnerability highlighting',
             order: 3,
           },
-        },
+        } satisfies SettingsSchema,
       },
     ],
     viewsContainers: {

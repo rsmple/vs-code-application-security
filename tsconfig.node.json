@@ -7,6 +7,8 @@
     "nightwatch.conf.*",
     "playwright.config.*",
     "build/**/*.ts",
+    "src/models/**/*.ts",
+    "env-node.d.ts",
     "src/package.ts"
   ],
   "compilerOptions": {
@@ -17,6 +19,11 @@
     "moduleResolution": "Bundler",
     "types": [
       "node"
-    ]
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   }
 }
