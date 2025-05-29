@@ -3,7 +3,7 @@ import {type Command, type Event, EventEmitter, Range, type TreeDataProvider, Tr
 import WorkspaceState from '@/utils/WorkspaceState'
 
 import {type Finding, getFindingAbsolutePath} from '@/models/Finding'
-import {Severity, severityTitleMap} from '@/models/Severity'
+import {severityTitleMap} from '@/models/Severity'
 import {ViewName} from '@/package'
 
 class TreeItemFinding extends TreeItem {
@@ -41,30 +41,27 @@ class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding> {
   readonly onDidChangeTreeData: Event<TreeItemFinding | undefined | void> = this._onDidChangeTreeData.event
 
   public groupList: Record<string, Finding[]> = {}
-  private severityFilter: Severity | null = null
 
   public updateList() {
-    let count = 0
-
     this.groupList = WorkspaceState.findingList.reduce<Record<string, Finding[]>>((result, current) => {
-      if (current.file_path !== null && (this.severityFilter === null || current.severity === this.severityFilter)) {
+      if (current.file_path !== null) {
         if (!result[current.file_path]) result[current.file_path] = []
 
         result[current.file_path].push(current)
-        count++
       }
 
       return result
     }, {})
 
-    setMessage(`${ this.severityFilter === null ? 'Findings' : severityTitleMap[this.severityFilter] }: ${ count }`)
-
-    this._onDidChangeTreeData.fire()
+    this.updateHeader()
   }
 
-  public setFilter(severity: Severity | null) {
-    this.severityFilter = severity
-    this.updateList()
+  public updateHeader() {
+    const count = Object.values(this.groupList).reduce((result, current) => result + current.length, 0)
+
+    setMessage(`Findings: ${ count } / ${ WorkspaceState.findingsCount }`)
+
+    this._onDidChangeTreeData.fire()
   }
 
   getTreeItem(element: TreeItemFinding): TreeItem {

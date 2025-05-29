@@ -24,4 +24,11 @@ export default {
   set findingList(value: Finding[]) {
     context.workspaceState.update('findingList', value)
   },
+
+  get findingsCount() {
+    return context.workspaceState.get<number>('findingsCount') ?? 0
+  },
+  set findingsCount(value: number) {
+    context.workspaceState.update('findingsCount', value)
+  },
 }

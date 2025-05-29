@@ -14,6 +14,7 @@ export type Settings = {
     highlight: boolean
   }
   filter: {
+    maxFindings: number
     triageStatuses: TriageStatusTitle[]
     severity: SeverityTitleEmoji[]
   }

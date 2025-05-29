@@ -31,9 +31,12 @@ type SettingsSchema = {
     default: SettingsKeys[Key]
     description: string
     order: number
+    enum?: unknown
     items?: unknown
   }
 }
+
+let order = 1
 
 export default {
   name: 'whitespots-application-security',
@@ -89,19 +92,26 @@ export default {
             type: 'string',
             default: '',
             description: 'External Portal URL',
-            order: 1,
+            order: order++,
           },
           'portal.base.token': {
             type: 'string',
             default: '',
             description: 'Auth API Token',
-            order: 2,
+            order: order++,
           },
           'portal.personalization.highlight': {
             type: 'boolean',
             default: true,
             description: 'Enable vulnerability highlighting',
-            order: 3,
+            order: order++,
+          },
+          'portal.filter.maxFindings': {
+            type: 'number',
+            default: 100,
+            description: 'Maximum number of findings to display in the list.',
+            order: order++,
+            enum: [50, 100, 200],
           },
           'portal.filter.triageStatuses': {
             type: 'array',
@@ -110,7 +120,7 @@ export default {
               triageStatusTitleMap[TriageStatus.VERIFIED],
               triageStatusTitleMap[TriageStatus.ASSIGNED],
             ],
-            order: 4,
+            order: order++,
             items: {
               type: 'string',
               enum: triageStatusList.map(item => triageStatusTitleMap[item]),
@@ -121,7 +131,7 @@ export default {
             type: 'array',
             description: 'List of severities to show findings',
             default: severityList.map(item => severityTitleEmojiMap[item]),
-            order: 5,
+            order: order++,
             items: {
               type: 'string',
               enum: severityList.map(item => severityTitleEmojiMap[item]),
