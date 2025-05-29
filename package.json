@@ -1,7 +1,7 @@
 {
   "name": "vs-code-application-security",
   "description": "Whitespots Application Security Extension for VS Code",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "type": "module",
   "workspaces": [
     "extension"
