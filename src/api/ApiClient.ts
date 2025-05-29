@@ -59,27 +59,28 @@ function doFetch<R, D extends RequestData>(method: string, url: string, config?:
     )
 
     fetch(request)
-      .then(response => {
-        response
-          .json()
-          .catch(() => undefined)
-          .then(data => {
-            if (response.ok) {
-              resolve({
-                data: data as R,
-                status: response.status,
-                config: config,
-                request: request as unknown as RequestResponse<R, D>['request'],
-              })
-            } else {
-              reject(new ApiError<D>({
-                data: data as ApiError<D>['response']['data'],
-                status: response.status,
-                config: config,
-                request: request as unknown as RequestResponse<R, D>['request'],
-              }))
-            }
+      .then(async response => {
+        outputChannel.appendLine(`${ response.status } ${ response.statusText }`)
+
+        const data = await response.json().catch(() => {})
+
+        if (response.ok) {
+          resolve({
+            data: data as R,
+            status: response.status,
+            config: config,
+            request: request as unknown as RequestResponse<R, D>['request'],
           })
+        } else {
+          outputChannel.appendLine(JSON.stringify(data, null, 2))
+    
+          reject(new ApiError<D>({
+            data: data as ApiError<D>['response']['data'],
+            status: response.status,
+            config: config,
+            request: request as unknown as RequestResponse<R, D>['request'],
+          }))
+        }
       })
       .catch(error => {
         if (error instanceof DOMException && error.name === 'AbortError') {

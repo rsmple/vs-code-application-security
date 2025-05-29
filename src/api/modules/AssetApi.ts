@@ -27,4 +27,8 @@ export default {
   getList(params: QueryParamsAssetList) {
     return apiClient.get<PaginatedResponse<Asset>>('/product-assets/', {params})
   },
+
+  getItem(id: number) {
+    return apiClient.get<PaginatedResponse<Asset>>(`/product-assets/${ id }/`)
+  },
 }
