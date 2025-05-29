@@ -28,10 +28,10 @@
     "@vscode/test-cli": "0.0.10",
     "@vscode/test-electron": "2.5.2",
     "@vscode/vsce": "3.3.2",
-    "eco-vue-js": "0.10.35",
+    "eco-vue-js": "0.10.63",
     "eslint": "9.25.0",
     "npm-run-all": "4.1.5",
     "typescript": "5.8.3",
-    "vite": "6.3.2"
+    "vite": "6.3.5"
   }
 }

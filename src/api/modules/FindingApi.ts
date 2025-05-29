@@ -1,5 +1,6 @@
 import type {AssetType} from '@/models/Asset'
 import type {Finding} from '@/models/Finding'
+import type {Severity} from '@/models/Severity'
 import type {Tag} from '@/models/Tag'
 import type {TriageStatus, TriageStatusEditable} from '@/models/TriageStatus'
 
@@ -38,7 +39,7 @@ export type QueryParamsFindings = {
   assign_violated?: string
   resolve_violated?: string
 
-  severity__in?: string
+  severity__in?: Severity[]
 
   tags__name__in?: string
   tags__name__exact_in?: string

@@ -2,7 +2,8 @@ import {type DecorationOptions, DecorationRangeBehavior, window, workspace} from
 
 import {getFindingHoverMessage} from '@/models/Finding'
 import {getSettings} from '@/models/Settings'
-import {Severity, severityDecorationMap, severityList} from '@/models/Severity'
+import {Severity, severityList} from '@/models/Severity'
+import {severityDecorationMap} from '@/models/SeverityDecoration'
 import {outputChannel} from '@/utils/OutputChannel'
 import severityColors from '@/utils/severity'
 
@@ -82,7 +83,7 @@ export const applyDecorationsFinding = () => {
 
     if (!findings.length) return
 
-    const finding = findings[0]
+    const finding = findings.splice(0, 1)[0]
 
     if (finding.line === null) return
 
@@ -90,14 +91,12 @@ export const applyDecorationsFinding = () => {
 
     const outdated = lineAt.text !== finding.line_text
 
-    const message = getFindingHoverMessage(finding, outdated)
+    const message = getFindingHoverMessage(finding, outdated, findings.length ? `(1 / ${ findings.length + 1 }) ` : undefined)
 
-    findings.forEach(item => {
-      if (item === finding) return
-
+    findings.forEach((item, index) => {
       message.appendMarkdown('\n\n---\n\n')
 
-      message.appendMarkdown(getFindingHoverMessage(item, outdated).value)
+      message.appendMarkdown(getFindingHoverMessage(item, lineAt.text !== item.line_text, `(${ index + 2 } / ${ findings.length + 1 }) `).value)
     })
 
     const target = outdated ? changedDecorationsBySeverity : decorationsBySeverity

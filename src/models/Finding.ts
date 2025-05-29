@@ -11,8 +11,8 @@ import {join} from 'path'
 import {CommandName} from '@/package'
 
 import {getPortalUrl} from './Settings'
-import {type Severity, severityMarkdownMap, severityTitleMap} from './Severity'
-import {type TriageStatus, triageStatusTitleMap} from './TriageStatus'
+import {type Severity, severityEmojiMap, severityTitleMap} from './Severity'
+import {TriageStatus, triageStatusTitleMap} from './TriageStatus'
 
 export type FindingRelatedIssue = {
   url: string
@@ -133,15 +133,15 @@ const findingFieldGetterMap = {
   date_verified: value => value.date_verified ? dateFormat(new Date(value.date_verified)) : 'N / A',
 } as const satisfies Partial<Record<keyof Finding, (value: Finding) => string>>
 
-export const getFindingHoverMessage = (value: Finding, outdated: boolean) => {
+export const getFindingHoverMessage = (value: Finding, outdated: boolean, prefix: string = '') => {
   const hoverMessage = new MarkdownString()
 
   const url = `[${ value.id }](${ getPortalUrl() }/products/${ value.product }/findings/${ value.id })`
 
-  hoverMessage.appendMarkdown(`## ${ url }: ${ severityMarkdownMap[value.severity] } ${ severityTitleMap[value.severity] } - ${ value.name }${ outdated ? ' (possibly outdated)' : '' }\n\n`)
+  hoverMessage.appendMarkdown(`## ${ prefix }${ url }: ${ severityEmojiMap[value.severity] } ${ severityTitleMap[value.severity] } - ${ value.name }${ outdated ? ' (possibly outdated)' : '' }\n\n`)
 
   const commandUri = `command:${ CommandName.REJECT_FINDING }?${ encodeURIComponent(JSON.stringify(value.id)) }`
-  hoverMessage.appendMarkdown(`[Reject this finding](${ commandUri })\n\n`)
+  if (value.current_sla_level !== TriageStatus.REJECTED) hoverMessage.appendMarkdown(`[Reject this finding](${ commandUri })\n\n`)
   hoverMessage.isTrusted = true
 
   hoverMessage.appendMarkdown(`${ value.file_path }:${ value.line }\n\n`)
@@ -151,6 +151,8 @@ export const getFindingHoverMessage = (value: Finding, outdated: boolean) => {
   hoverMessage.appendCodeblock(value.line_text, value.language)
 
   hoverMessage.appendMarkdown(value.description)
+
+  hoverMessage.appendMarkdown('\n\n')
 
   findingFieldDetailList.forEach((field, index, array) => {
     hoverMessage.appendMarkdown(findingFieldTitleMap[field] + ': ' + findingFieldGetterMap[field](value) + (index < array.length - 1 ? '\n\n' : ''))

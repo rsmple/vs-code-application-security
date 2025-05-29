@@ -2,6 +2,9 @@ import {commands, window, workspace} from 'vscode'
 
 import {CommandName, SETTINGS_KEY} from '@/package'
 
+import {SeverityTitleEmoji} from './Severity'
+import {TriageStatusTitle} from './TriageStatus'
+
 export type Settings = {
   base: {
     token: string
@@ -9,6 +12,10 @@ export type Settings = {
   }
   personalization: {
     highlight: boolean
+  }
+  filter: {
+    triageStatuses: TriageStatusTitle[]
+    severity: SeverityTitleEmoji[]
   }
 }
 

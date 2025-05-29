@@ -2,11 +2,11 @@ import {window, workspace} from 'vscode'
 
 import WorkspaceState from '@/utils/WorkspaceState'
 
-import AssetApi from '@/api/modules/AssetApi'
 import FindingApi from '@/api/modules/FindingApi'
-import {AssetType} from '@/models/Asset'
 import {getFindingAbsolutePath} from '@/models/Finding'
-import {TriageStatus} from '@/models/TriageStatus'
+import {getSettings} from '@/models/Settings'
+import {severityTitleEmojiMapReverse} from '@/models/Severity'
+import {triageStatusTitleMapReverse} from '@/models/TriageStatus'
 import {getGitRemoteUrl} from '@/utils/GitConfig'
 import {outputChannel} from '@/utils/OutputChannel'
 
@@ -31,47 +31,16 @@ const updateRepositoryUrl = async () => {
   WorkspaceState.repositoryUrl = repositoryUrl
 }
 
-const updateAsset = async () => {
-  const repositoryUrl = WorkspaceState.repositoryUrl
-
-  if (!repositoryUrl) return
-
-  outputChannel.appendLine('Requesting repository from portal...')
-  const response = await AssetApi.getList({asset_type: AssetType.REPOSITORY, search: repositoryUrl})
-
-  const count = response.data.results.length
-
-  if (!response.data.results || count === 0) {
-    WorkspaceState.asset = undefined
-    WorkspaceState.findingList = []
-
-    outputChannel.appendLine('No assets for repository')
-    showErrorMessage(`Repository ${ repositoryUrl } is not found in portal`)
-    return
-  }
-
-  outputChannel.appendLine(`Found ${ count } asset${ count === 1 ? '' : 's' } for repository ${ repositoryUrl }`)
-
-  let selectedAsset = response.data.results[0]
-  for (const asset of response.data.results) {
-    if ((asset.verified_and_assigned_findings_count ?? 0) > (selectedAsset.verified_and_assigned_findings_count ?? 0)) {
-      selectedAsset = asset
-    }
-  }
-
-  if (!selectedAsset.verified_and_assigned_findings_count) {
-    showErrorMessage(`No verified findings for repository ${ repositoryUrl }`)
-    return
-  }
-
-  outputChannel.appendLine(`Use product ID: ${ selectedAsset.product }`)
-
-  WorkspaceState.asset = selectedAsset
-}
-
 const getFindings = async (repositoryUrl: string, page = 1) => {
+  const settings = getSettings()
+
   const response = await FindingApi.getList({
-    triage_status: TriageStatus.VERIFIED,
+    triage_status__in: settings.filter.triageStatuses
+      .map(item => triageStatusTitleMapReverse[item])
+      .filter(item => item),
+    severity__in: settings.filter.severity
+      .map(item => severityTitleEmojiMapReverse[item])
+      .filter(item => item),
     assets__in: {0: [repositoryUrl]},
     page,
     ordering: '-severity',
@@ -127,9 +96,8 @@ const getFindings = async (repositoryUrl: string, page = 1) => {
 
 const updateFindingList = async () => {
   const repositoryUrl = WorkspaceState.repositoryUrl
-  const asset = WorkspaceState.asset
 
-  if (!repositoryUrl || !asset) return
+  if (!repositoryUrl) return
 
   outputChannel.appendLine('Requesting findings...')
 
@@ -144,8 +112,6 @@ const doUpdate = async () => {
   setLoading()
 
   await updateRepositoryUrl()
-
-  await updateAsset()
 
   await updateFindingList()
 

@@ -2,7 +2,6 @@ import {type ExtensionContext, Uri, commands, window, workspace} from 'vscode'
 
 import FindingApi from './api/modules/FindingApi'
 import {parseSettingsSetup, setupSettings} from './models/Settings'
-import {severityChoiceMap, severityList, severityTitleMap} from './models/Severity'
 import {TriageStatus} from './models/TriageStatus'
 import {CommandName, SETTINGS_KEY} from './package'
 import {checkFindings} from './providers/CheckFindings'
@@ -31,20 +30,6 @@ export function activate(context: ExtensionContext) {
   })
 
   context.subscriptions.push(disposable)
-
-  commands.registerCommand(CommandName.SET_FILTER, async () => {
-    const choice = await window.showQuickPick([
-      'All',
-      ...severityList.map(severity => severityTitleMap[severity]),
-    ], {
-      placeHolder: 'Choose severity level',
-    })
-    if (choice) {
-      treeDataProviderFinding.setFilter(severityChoiceMap[choice] ?? null)
-
-      applyDecorationsFinding()
-    }
-  })
 
   commands.registerCommand(CommandName.CONFIGURE, () => {
     commands.executeCommand('workbench.action.openSettings', SETTINGS_KEY)

@@ -1,5 +1,8 @@
 import type {Settings} from '@/models/Settings'
 
+import {severityList, severityTitleEmojiMap} from './models/Severity'
+import {TriageStatus, triageStatusList, triageStatusTitleMap} from './models/TriageStatus'
+
 export const PLUGIN_TITLE = 'Whitespots Application Security Portal'
 
 export const SETTINGS_KEY = 'portal'
@@ -9,7 +12,6 @@ export const SETTINGS_KEY_CAP = SETTINGS_KEY[0].toLocaleUpperCase() + SETTINGS_K
 export enum CommandName {
   CHECK_FINDINGS = `${ SETTINGS_KEY }.checkVulnerabilities`,
   CONFIGURE = `${ SETTINGS_KEY }.configure`,
-  SET_FILTER = `${ SETTINGS_KEY }.setFilter`,
   REJECT_FINDING = `${ SETTINGS_KEY }.rejectFinding`,
   SETUP = `${ SETTINGS_KEY }.setup`,
 }
@@ -21,7 +23,7 @@ export enum ViewName {
 const logo = './assets/logo.png'
 const icon = './assets/appsec.svg'
 
-type SettingsKeys = ObjectPaths<Settings, string | boolean | number>
+type SettingsKeys = ObjectPaths<Settings, string | boolean | number | unknown[]>
 
 type SettingsSchema = {
   [Key in keyof SettingsKeys as `${ typeof SETTINGS_KEY }.${ Key }`]: {
@@ -29,6 +31,7 @@ type SettingsSchema = {
     default: SettingsKeys[Key]
     description: string
     order: number
+    items?: unknown
   }
 }
 
@@ -70,11 +73,6 @@ export default {
         icon: '$(settings-gear)',
       },
       {
-        command: CommandName.SET_FILTER,
-        title: 'Findings Filter',
-        icon: '$(filter)',
-      },
-      {
         command: CommandName.REJECT_FINDING,
         title: 'Reject Finding',
       },
@@ -105,6 +103,31 @@ export default {
             description: 'Enable vulnerability highlighting',
             order: 3,
           },
+          'portal.filter.triageStatuses': {
+            type: 'array',
+            description: 'List of triage status to show findings',
+            default: [
+              triageStatusTitleMap[TriageStatus.VERIFIED],
+              triageStatusTitleMap[TriageStatus.ASSIGNED],
+            ],
+            order: 4,
+            items: {
+              type: 'string',
+              enum: triageStatusList.map(item => triageStatusTitleMap[item]),
+              enumDescriptions: triageStatusList,
+            },
+          },
+          'portal.filter.severity': {
+            type: 'array',
+            description: 'List of severities to show findings',
+            default: severityList.map(item => severityTitleEmojiMap[item]),
+            order: 5,
+            items: {
+              type: 'string',
+              enum: severityList.map(item => severityTitleEmojiMap[item]),
+              enumDescriptions: severityList,
+            },
+          },
         } satisfies SettingsSchema,
       },
     ],
@@ -128,11 +151,6 @@ export default {
     },
     menus: {
       'view/title': [
-        {
-          command: CommandName.SET_FILTER,
-          when: `view == ${ ViewName.FINDINGS }`,
-          group: 'navigation',
-        },
         {
           command: CommandName.CONFIGURE,
           when: `view == ${ ViewName.FINDINGS }`,
