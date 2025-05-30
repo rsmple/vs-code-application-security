@@ -11,7 +11,7 @@ export default [
     ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**', '**/node_modules/**', '**/extension/**'],
   },
 
-  ...plugin.configs.recommended,
+  ...plugin.configs.recommended({noVue: true}),
 
   {
     settings: {
@@ -21,6 +21,13 @@ export default [
           project: './tsconfig.src.json',
         },
       },
+    },
+  },
+
+  {
+    files: ['./.vscode/**/*.json'],
+    rules: {
+      'jsonc/no-comments': 'off',
     },
   },
 ]
