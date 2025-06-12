@@ -4,7 +4,7 @@ import WorkspaceState from '@/utils/WorkspaceState'
 
 import AssetApi from '@/api/modules/AssetApi'
 import FindingApi from '@/api/modules/FindingApi'
-import {AssetType} from '@/models/Asset'
+import {type Asset, AssetType, parseGitUrl} from '@/models/Asset'
 import {getFindingAbsolutePath} from '@/models/Finding'
 import {getSettings} from '@/models/Settings'
 import {severityTitleEmojiMapReverse} from '@/models/Severity'
@@ -33,18 +33,35 @@ const updateRepositoryUrl = async () => {
   WorkspaceState.repositoryUrl = repositoryUrl
 }
 
-const updateAsset = async () => {
+const updateAssetList = async () => {
   const repositoryUrl = WorkspaceState.repositoryUrl
 
   if (!repositoryUrl) return
 
+  const parsed = parseGitUrl(repositoryUrl)
+
+  if (!parsed) {
+    const message = `Failed to parse repository URL: ${ repositoryUrl }`
+    outputChannel.appendLine(message)
+    showErrorMessage(message)
+
+    return
+  }
+
   outputChannel.appendLine('Requesting repository from portal...')
-  const response = await AssetApi.getList({asset_type: AssetType.REPOSITORY, search: repositoryUrl})
+  const response = await AssetApi.getList({asset_type: AssetType.REPOSITORY, search: `${ parsed.domain } ${ parsed.path }`})
 
-  const count = response.data.results.length
+  const list = response.data.results.filter(item => {
+    const domainIndex = item.value.indexOf(parsed.domain)
+    const pathIndex = item.value.indexOf(parsed.path)
 
-  if (!response.data.results || count === 0) {
-    WorkspaceState.asset = undefined
+    if (domainIndex === -1 || pathIndex === -1) return false
+
+    return item.value.substring(domainIndex + parsed.domain.length, pathIndex).length <= 1
+  })
+
+  if (list.length === 0) {
+    WorkspaceState.assetList = []
     WorkspaceState.findingList = []
 
     outputChannel.appendLine('No assets for repository')
@@ -52,26 +69,16 @@ const updateAsset = async () => {
     return
   }
 
-  outputChannel.appendLine(`Found ${ count } asset${ count === 1 ? '' : 's' } for repository ${ repositoryUrl }`)
+  outputChannel.appendLine(`Found ${ list.length } asset${ list.length === 1 ? '' : 's' } for repository ${ repositoryUrl }`)
 
-  let selectedAsset = response.data.results[0]
-  for (const asset of response.data.results) {
-    if ((asset.verified_and_assigned_findings_count ?? 0) > (selectedAsset.verified_and_assigned_findings_count ?? 0)) {
-      selectedAsset = asset
-    }
-  }
+  list.forEach(item => {
+    outputChannel.appendLine(item.value + (item.related_objects_meta?.product.name ? ` ( ${ item.related_objects_meta.product.name } | ${ item.related_objects_meta.product.related_objects_meta.product_type.name } )`: ''))
+  })
 
-  if (!selectedAsset.verified_and_assigned_findings_count) {
-    showErrorMessage(`No verified findings for repository ${ repositoryUrl }`)
-    return
-  }
-
-  outputChannel.appendLine(`Use product ID: ${ selectedAsset.product }`)
-
-  WorkspaceState.asset = selectedAsset
+  WorkspaceState.assetList = list
 }
 
-const getFindings = async (repositoryUrl: string, page = 1) => {
+const getFindings = async (assetList: Asset[], page = 1) => {
   const settings = getSettings()
 
   const response = await FindingApi.getList({
@@ -81,7 +88,11 @@ const getFindings = async (repositoryUrl: string, page = 1) => {
     severity__in: settings.filter.severity
       .map(item => severityTitleEmojiMapReverse[item])
       .filter(item => item),
-    assets__in: {0: [repositoryUrl]},
+    assets__in: {
+      [AssetType.REPOSITORY]: assetList
+        .map(item => item.value)
+        .filter((item, index, array) => array.indexOf(item) === index),
+    },
     page,
     slice_indexes: page === 1 ? undefined : [0, settings.filter.maxFindings - 1],
     ordering: '-severity',
@@ -93,7 +104,7 @@ const getFindings = async (repositoryUrl: string, page = 1) => {
     treeDataProviderFinding.updateHeader()
 
     if (response.data.results.length === 0) {
-      showErrorMessage(`No findings to show for repository ${ repositoryUrl }`)
+      showErrorMessage(`No findings to show for repository ${ WorkspaceState.repositoryUrl }`)
 
       return
     }
@@ -138,19 +149,18 @@ const getFindings = async (repositoryUrl: string, page = 1) => {
   applyDecorationsFinding()
 
   if (response.data.pages_count > page) {
-    await getFindings(repositoryUrl, page + 1)
+    await getFindings(assetList, page + 1)
   }
 }
 
 const updateFindingList = async () => {
-  const repositoryUrl = WorkspaceState.repositoryUrl
-  const asset = WorkspaceState.asset
+  const assetList = WorkspaceState.assetList
 
-  if (!repositoryUrl || !asset) return
+  if (!assetList.length) return
 
   outputChannel.appendLine('Requesting findings...')
 
-  await getFindings(repositoryUrl)
+  await getFindings(assetList)
 
   outputChannel.appendLine('Vulnerability checking completed')
 }
@@ -162,7 +172,7 @@ const doUpdate = async () => {
 
   await updateRepositoryUrl()
 
-  await updateAsset()
+  await updateAssetList()
 
   await updateFindingList()
 

@@ -38,3 +38,33 @@ export type Asset = {
     job_sequence: JobSequence | null
   }
 }
+
+const REST = '.git'
+
+const list = [
+  'git@',
+  'https://',
+  'ssh://',
+  'git://',
+] as const
+
+export const parseGitUrl = (url: string): {domain: string, path: string} | null => {
+  if (url.endsWith(REST)) {
+    url = url.slice(0, REST.length * -1)
+  }
+
+  const start = list.find(item => url.startsWith(item))
+
+  if (!start) return null
+
+  url = url.substring(start.length)
+
+  const dividerIndex = url.indexOf(start === 'git@' ? ':' : '/')
+
+  if (dividerIndex === -1) return null
+
+  return {
+    domain: url.slice(url.indexOf('@') + 1, dividerIndex),
+    path: url.slice(dividerIndex + 1),
+  }
+}

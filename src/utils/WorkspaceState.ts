@@ -11,11 +11,11 @@ export default {
     context.workspaceState.update('repositoryUrl', value)
   },
 
-  get asset() {
-    return context.workspaceState.get<Asset>('asset')
+  get assetList() {
+    return context.workspaceState.get<Asset[]>('assetList') ?? []
   },
-  set asset(value: Asset | undefined) {
-    context.workspaceState.update('asset', value)
+  set assetList(value: Asset[]) {
+    context.workspaceState.update('assetList', value)
   },
 
   get findingList() {
