@@ -1,5 +1,9 @@
 # Whitespots Application Security Extension
 
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/Whitespots.whitespots-application-security?label=VS%20Code%20Marketplace&style=for-the-badge&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=Whitespots.whitespots-application-security)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/Whitespots.whitespots-application-security?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=Whitespots.whitespots-application-security)
+[![Rating](https://img.shields.io/visual-studio-marketplace/r/Whitespots.whitespots-application-security?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=Whitespots.whitespots-application-security)
+
 **Description**: A Visual Studio Code extension to integrate with the [Whitespots Application Security Portal](https://whitespots.io/) and display vulnerabilities related to the current repository.
 
 ---
