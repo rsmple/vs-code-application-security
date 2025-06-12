@@ -3,7 +3,7 @@
 [![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/Whitespots.whitespots-application-security?label=VS%20Code%20Marketplace&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=Whitespots.whitespots-application-security)
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/Whitespots.whitespots-application-security)](https://marketplace.visualstudio.com/items?itemName=Whitespots.whitespots-application-security)
 [![Rating](https://img.shields.io/visual-studio-marketplace/r/Whitespots.whitespots-application-security)](https://marketplace.visualstudio.com/items?itemName=Whitespots.whitespots-application-security)
-[![GitHub Stars](https://img.shields.io/github/stars/rsmple/myga?style=social)](https://github.com/your-username/myga/stargazers)
+[![GitHub Stars](https://img.shields.io/github/stars/Whitespots-OU/vscode-portal-extension?style=social)](https://github.com/Whitespots-OU/vscode-portal-extension/stargazers)
 
 **Description**: A Visual Studio Code extension to integrate with the [Whitespots Application Security Portal](https://whitespots.io/) and display vulnerabilities related to the current repository.
 
