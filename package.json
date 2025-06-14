@@ -7,15 +7,17 @@
     "extension"
   ],
   "scripts": {
-    "build": "vite build",
-    "watch": "vite build --watch",
-    "package": "vsce package",
+    "build:extension": "vite build --config vite.config.extension.ts",
+    "build:webview": "vite build --config vite.config.webview.ts",
+    "build": "npm run build:extension && npm run build:webview",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+
+    "package": "vsce package",
     "test": "vscode-test",
     "vscode:prepublish": "npm run package",
-    "compile": "vite build",
+    "compile": "npm run build",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",

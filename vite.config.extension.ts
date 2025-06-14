@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [pluginPackage],
   build: {
     lib: {
-      entry: 'src/extension.ts',
+      entry: 'src/extension/extension.ts',
       formats: ['cjs'],
       fileName: 'extension',
     },
@@ -16,7 +16,7 @@ export default defineConfig({
       external: ['vscode', 'util', 'path', 'fs', 'child_process'],
     },
     outDir: 'extension',
-    sourcemap: true,
+    sourcemap: false,
     minify: false,
   },
   resolve: {
