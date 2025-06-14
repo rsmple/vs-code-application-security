@@ -18,7 +18,7 @@ export enum CommandName {
 
 export enum ViewName {
   FINDINGS = `${ SETTINGS_KEY }.findings`,
-  WEBVIEW = `${ SETTINGS_KEY }.webview`,
+  WEBVIEW = `${ SETTINGS_KEY }.webview`
 }
 
 const logo = './assets/logo.png'
@@ -150,11 +150,9 @@ export default {
           title: SETTINGS_KEY_CAP,
           icon,
         },
-      ],
-      secondarySideBar: [
         {
-          id: 'webview',
-          title: 'Chat',
+          id: 'webviewContainer',
+          title: 'Webview',
           icon,
         },
       ],
@@ -167,10 +165,11 @@ export default {
           icon,
         },
       ],
-      secondarySideBar: [
+      webviewContainer: [
         {
           id: ViewName.WEBVIEW,
           name: 'Webview',
+          type: 'webview',
         },
       ],
     },

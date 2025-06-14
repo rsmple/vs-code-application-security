@@ -2,19 +2,26 @@ import {Uri, type WebviewView, type WebviewViewProvider} from 'vscode'
 
 import {context} from '@ext/utils/Context'
 
-export class ChatViewProvider implements WebviewViewProvider {
+import {outputChannel} from '../utils/OutputChannel'
+
+export class WebviewProvider implements WebviewViewProvider {
+  constructor() {}
+
   resolveWebviewView(webviewView: WebviewView) {
     const webview = webviewView.webview
+
     webview.options = {
       enableScripts: true,
-      localResourceRoots: [Uri.joinPath(context.extensionUri, 'extension/webview')],
+      localResourceRoots: [Uri.joinPath(context.extensionUri, 'webview')],
     }
 
     const scriptUri = webview.asWebviewUri(
-      Uri.joinPath(context.extensionUri, 'extension/webview', 'main.js'),
+      Uri.joinPath(context.extensionUri, 'webview', 'main.js'),
     )
 
     webview.html = this.getHtml(scriptUri)
+
+    outputChannel.appendLine(scriptUri.toString())
   }
 
   getHtml(scriptUri: Uri) {
