@@ -23,4 +23,13 @@ export default defineConfig({
       '@web': fileURLToPath(new URL('./src/webview', import.meta.url)),
     },
   },
+  server: {
+    port: 5173,
+    cors: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+    },
+  },
 })

@@ -34,7 +34,7 @@ export class WebviewProvider implements WebviewViewProvider {
 </head>
 <body>
   <div id="app"></div>
-  <script type="module" src="${ scriptUri }"></script>
+  <script type="module" src="${ process.env.NODE_ENV !== 'production' ? 'http://localhost:5173/main.ts' : scriptUri }"></script>
 </body>
 </html>`
   }

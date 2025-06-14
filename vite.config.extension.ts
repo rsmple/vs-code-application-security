@@ -4,7 +4,7 @@ import {URL, fileURLToPath} from 'url'
 
 import {pluginPackage} from './build/pluginPackage'
 
-export default defineConfig({
+export default defineConfig(({mode}) => ({
   plugins: [pluginPackage],
   build: {
     lib: {
@@ -26,6 +26,6 @@ export default defineConfig({
     },
   },
   define: {
-    'process.env.NODE_ENV': '"production"',
+    'process.env.NODE_ENV': JSON.stringify(mode),
   },
-})
+}))

@@ -7,9 +7,11 @@
     "extension"
   ],
   "scripts": {
-    "build:extension": "vite build --config vite.config.extension.ts",
+    "build:extension": "vite build --config vite.config.extension.ts --mode production",
     "build:webview": "vite build --config vite.config.webview.ts",
     "build": "npm run build:extension && npm run build:webview",
+    "dev:extension": "vite build --config vite.config.extension.ts --mode development",
+    "dev": "vite --config vite.config.webview.ts",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
