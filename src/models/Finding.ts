@@ -2,17 +2,8 @@ import type {AssetField} from './Asset'
 import type {CVSSVectorWithScore} from './CVSS'
 import type {ProductLite} from './Product'
 
-import {MarkdownString, workspace} from 'vscode'
-
-import {dateFormat} from 'eco-vue-js/dist/utils/dateTime'
-
-import {join} from 'path'
-
-import {CommandName} from '@/package'
-
-import {getPortalUrl} from './Settings'
-import {type Severity, severityEmojiMap, severityTitleMap} from './Severity'
-import {TriageStatus, triageStatusTitleMap} from './TriageStatus'
+import {type Severity} from './Severity'
+import {TriageStatus} from './TriageStatus'
 
 export type FindingRelatedIssue = {
   url: string
@@ -35,11 +26,6 @@ type FindingJira = {
   jira_prod_task_assignee_profile: string
   jira_prod_issue_components: string[]
   jira_prod_related_issues: FindingRelatedIssue[]
-}
-
-type FindingExtend = {
-  line_text: string
-  language: string | undefined
 }
 
 export type Finding = {
@@ -109,60 +95,4 @@ export type Finding = {
   groups: string[]
 
   cwe_set: number[]
-} & FindingJira & Record<AssetField, string> & FindingExtend
-
-const findingFieldTitleMap = {
-  id: 'ID',
-  current_sla_level: 'Status',
-  cvss: 'CVSS',
-  date_created: 'Created',
-  date_verified: 'Verified',
-} as const satisfies Partial<Record<keyof Finding, string>>
-
-const findingFieldDetailList: (keyof typeof findingFieldTitleMap)[] = [
-  'current_sla_level',
-  'cvss',
-  'date_verified',
-]
-
-const findingFieldGetterMap = {
-  id: value => value.id.toString(),
-  current_sla_level: value => triageStatusTitleMap[value.current_sla_level],
-  cvss: value => value.cvss?.['4.0']?.score?.toString() ?? value.cvss?.['3.1']?.score?.toString() ?? 'N / A',
-  date_created: value => value.date_created ? dateFormat(new Date(value.date_created)) : 'N / A',
-  date_verified: value => value.date_verified ? dateFormat(new Date(value.date_verified)) : 'N / A',
-} as const satisfies Partial<Record<keyof Finding, (value: Finding) => string>>
-
-export const getFindingHoverMessage = (value: Finding, outdated: boolean, prefix: string = '') => {
-  const hoverMessage = new MarkdownString()
-
-  const url = `[${ value.id }](${ getPortalUrl() }/products/${ value.product }/findings/${ value.id })`
-
-  hoverMessage.appendMarkdown(`## ${ prefix }${ url }: ${ severityEmojiMap[value.severity] } ${ severityTitleMap[value.severity] } - ${ value.name }${ outdated ? ' (possibly outdated)' : '' }\n\n`)
-
-  const commandUri = `command:${ CommandName.REJECT_FINDING }?${ encodeURIComponent(JSON.stringify(value.id)) }`
-  if (value.current_sla_level !== TriageStatus.REJECTED) hoverMessage.appendMarkdown(`[Reject this finding](${ commandUri })\n\n`)
-  hoverMessage.isTrusted = true
-
-  hoverMessage.appendMarkdown(`${ value.file_path }:${ value.line }\n\n`)
-
-  hoverMessage.appendMarkdown('Code snippet:\n\n')
-
-  hoverMessage.appendCodeblock(value.line_text, value.language)
-
-  hoverMessage.appendMarkdown(value.description)
-
-  hoverMessage.appendMarkdown('\n\n')
-
-  findingFieldDetailList.forEach((field, index, array) => {
-    hoverMessage.appendMarkdown(findingFieldTitleMap[field] + ': ' + findingFieldGetterMap[field](value) + (index < array.length - 1 ? '\n\n' : ''))
-  })
-
-  return hoverMessage
-}
-
-export const getFindingAbsolutePath = (value: Finding): string | null => {
-  if (!workspace.workspaceFolders || value.file_path === null) return null
-
-  return join(workspace.workspaceFolders[0].uri.fsPath, value.file_path)
-}
+} & FindingJira & Record<AssetField, string>

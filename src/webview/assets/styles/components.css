@@ -1,0 +1,42 @@
+@tailwind components;
+
+@layer components {
+  .code-inline {
+    @apply font-mono px-1 bg-gray-200 dark:bg-gray-600 rounded select-text font-normal
+  }
+
+  .gradient-primary {
+    background-image: linear-gradient(120deg, var(--tw-gradient-stops));
+
+    @apply from-[#B376FA] via-[#ac99eb] to-[#827BFF]
+      dark:from-[#743d90] dark:via-[#8062ca] dark:to-[#4a3dc0]
+  }
+
+  .gradient-negative {
+    background-image: linear-gradient(120deg, var(--tw-gradient-stops));
+
+    @apply from-[#e3445c] via-[#f87797] to-[#f35555]  
+    dark:from-[#9d2f4a] dark:via-[#c95073] dark:to-[#912430];
+  }
+
+  .gradient-positive {
+    background-image: linear-gradient(120deg, var(--tw-gradient-stops));
+
+    @apply from-[#60d481] via-[#9ae6a4] to-[#77d460]  
+    dark:from-[#23833b] dark:via-[#57a964] dark:to-[#3f8747];
+  }
+
+  .gradient-warning {
+    background-image: linear-gradient(120deg, var(--tw-gradient-stops));
+
+    @apply from-[#ffc956] via-[#f8fd6c] to-[#ffda56]
+      dark:from-[#e69539] dark:via-[#c8c74a] dark:to-[#e0a238]
+  }
+
+  .gradient-info {
+    background-image: linear-gradient(120deg, var(--tw-gradient-stops));
+
+    @apply from-[#6295ed] via-[#80d1e5] to-[#82adff]
+      dark:from-[#2271d1] dark:via-[#5e99c6] dark:to-[#3d71c5];
+  }
+}

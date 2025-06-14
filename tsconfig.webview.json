@@ -1,0 +1,31 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": [
+    "env.d.ts",
+    "src/webview/env.d.ts",
+    "src/webview/**/*.d.ts",
+    "src/webview/**/*.ts",
+    "src/webview/**/*.vue"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "baseUrl": ".",
+    "preserveSymlinks": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@web/*": [
+        "./src/webview/*"
+      ]
+    },
+    "lib": [
+      "es2023",
+      "DOM"
+    ]
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

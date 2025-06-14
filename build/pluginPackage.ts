@@ -6,7 +6,7 @@ import {join, resolve} from 'path'
 
 import packageJson from '../package.json' with { type: 'json' }
 
-const SOURCE = 'src/package.ts'
+const SOURCE = 'src/extension/package.ts'
 const LICENSE = 'LICENSE'
 const VSCODEIGNORE = '.vscodeignore'
 const ASSETS = 'assets'
@@ -34,12 +34,14 @@ export const pluginPackage: Plugin = {
   name: 'vite-plugin-package',
   enforce: 'post',
   async closeBundle() {
-    const viteConfig = await resolveConfig({}, 'build')
+    const configFile = resolve('./vite.config.extension.ts')
+    const viteConfig = await resolveConfig({configFile}, 'build')
     const outDir = viteConfig.build.outDir
 
     try {
       const result = await build({
         configFile: false,
+        resolve: viteConfig.resolve,
         build: {
           lib: {
             entry: resolve(SOURCE),

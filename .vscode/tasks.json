@@ -4,12 +4,12 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "dev:extension",
       "type": "npm",
-      "script": "build",
+      "script": "dev:extension", // "build",
       "group": "build",
       "problemMatcher": "$vite",
       "isBackground": true,
-      "label": "npm: build",
       "presentation": {
         "group": "build",
         "reveal": "never"
