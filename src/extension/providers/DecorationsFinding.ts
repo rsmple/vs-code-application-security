@@ -1,11 +1,11 @@
 import {type DecorationOptions, DecorationRangeBehavior, window, workspace} from 'vscode'
 
-import {getFindingHoverMessage} from '@/models/Finding'
-import {getSettings} from '@/models/Settings'
 import {Severity, severityList} from '@/models/Severity'
-import {severityDecorationMap} from '@/models/SeverityDecoration'
-import {outputChannel} from '@/utils/OutputChannel'
-import severityColors from '@/utils/severity'
+import {getFindingHoverMessage} from '@ext/models/Finding'
+import {getSettings} from '@ext/models/Settings'
+import {severityDecorationMap} from '@ext/models/SeverityDecoration'
+import {outputChannel} from '@ext/utils/OutputChannel'
+import severityColors from '@ext/utils/severity'
 
 import {treeDataProviderFinding} from './TreeDataProviderFinding'
 

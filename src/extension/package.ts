@@ -1,7 +1,7 @@
-import type {Settings} from '@/models/Settings'
+import type {Settings} from '@ext/models/Settings'
 
-import {severityList, severityTitleEmojiMap} from './models/Severity'
-import {TriageStatus, triageStatusList, triageStatusTitleMap} from './models/TriageStatus'
+import {severityList, severityTitleEmojiMap} from '@/models/Severity'
+import {TriageStatus, triageStatusList, triageStatusTitleMap} from '@/models/TriageStatus'
 
 export const PLUGIN_TITLE = 'Whitespots Application Security Portal'
 
@@ -17,7 +17,8 @@ export enum CommandName {
 }
 
 export enum ViewName {
-  FINDINGS = `${ SETTINGS_KEY }.findings`
+  FINDINGS = `${ SETTINGS_KEY }.findings`,
+  WEBVIEW = `${ SETTINGS_KEY }.webview`,
 }
 
 const logo = './assets/logo.png'
@@ -61,6 +62,7 @@ export default {
   activationEvents: [
     'onUri',
     `onCommand:${ CommandName.SETUP }`,
+    `onView:${ ViewName.WEBVIEW }`,
   ],
   main: './extension.cjs',
   contributes: {
@@ -149,6 +151,13 @@ export default {
           icon,
         },
       ],
+      secondarySideBar: [
+        {
+          id: 'webview',
+          title: 'Chat',
+          icon,
+        },
+      ],
     },
     views: {
       appsec: [
@@ -156,6 +165,12 @@ export default {
           id: ViewName.FINDINGS,
           name: 'Findings',
           icon,
+        },
+      ],
+      secondarySideBar: [
+        {
+          id: ViewName.WEBVIEW,
+          name: 'Webview',
         },
       ],
     },

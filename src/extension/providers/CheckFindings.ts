@@ -1,16 +1,16 @@
 import {window, workspace} from 'vscode'
 
-import WorkspaceState from '@/utils/WorkspaceState'
+import WorkspaceState from '@ext/utils/WorkspaceState'
 
-import AssetApi from '@/api/modules/AssetApi'
-import FindingApi from '@/api/modules/FindingApi'
 import {type Asset, AssetType, parseGitUrl} from '@/models/Asset'
-import {getFindingAbsolutePath} from '@/models/Finding'
-import {getSettings} from '@/models/Settings'
 import {severityTitleEmojiMapReverse} from '@/models/Severity'
 import {triageStatusTitleMapReverse} from '@/models/TriageStatus'
-import {getGitRemoteUrl} from '@/utils/GitConfig'
-import {outputChannel} from '@/utils/OutputChannel'
+import AssetApi from '@ext/api/modules/AssetApi'
+import FindingApi from '@ext/api/modules/FindingApi'
+import {type FindingExtended, getFindingAbsolutePath} from '@ext/models/Finding'
+import {getSettings} from '@ext/models/Settings'
+import {getGitRemoteUrl} from '@ext/utils/GitConfig'
+import {outputChannel} from '@ext/utils/OutputChannel'
 
 import {applyDecorationsFinding} from './DecorationsFinding'
 import {setLoading, showErrorMessage, stopLoading, treeDataProviderFinding} from './TreeDataProviderFinding'
@@ -113,7 +113,9 @@ const getFindings = async (assetList: Asset[], page = 1) => {
   const message = `Findings: ${ response.data.count }`
   outputChannel.appendLine(message)
 
-  for (const finding of response.data.results) {
+  const list = response.data.results as FindingExtended[]
+
+  for (const finding of list) {
     if (finding.line === null) {
       finding.line_text = '[Line is not provided]'
       continue
@@ -141,8 +143,8 @@ const getFindings = async (assetList: Asset[], page = 1) => {
     }
   }
 
-  if (page === 1) WorkspaceState.findingList = response.data.results
-  else WorkspaceState.findingList.push(...response.data.results)
+  if (page === 1) WorkspaceState.findingList = list
+  else WorkspaceState.findingList.push(...list)
 
   treeDataProviderFinding.updateList()
 

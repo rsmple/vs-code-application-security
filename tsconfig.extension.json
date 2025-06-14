@@ -3,8 +3,9 @@
     "src/types/ui-kit.d.ts",
     "env.d.ts",
     "src/types/global.d.ts",
-    "src/**/*.d.ts",
-    "src/**/*.ts",
+    "src/models/**/*.ts",
+    "src/extension/**/*.d.ts",
+    "src/extension/**/*.ts",
     "assets/**/*"
   ],
   "compilerOptions": {
@@ -12,7 +13,6 @@
     "target": "ESNext",
     "lib": ["ESNext"],
     "moduleResolution": "node",
-    "outDir": "./dist",
     "baseUrl": ".",
     "strict": true,
     "composite": true,
@@ -20,6 +20,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@ext/*": [
+        "./src/extension/*"
       ]
     }
   },

@@ -1,6 +1,6 @@
 import type {User} from '@/models/User'
 
-import {apiClient} from '@/api/ApiClient'
+import {apiClient} from '../ApiClient'
 
 export default {
   getItem() {

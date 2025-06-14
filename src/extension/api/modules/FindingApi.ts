@@ -4,7 +4,7 @@ import type {Severity} from '@/models/Severity'
 import type {Tag} from '@/models/Tag'
 import type {TriageStatus, TriageStatusEditable} from '@/models/TriageStatus'
 
-import {apiClient} from '@/api/ApiClient'
+import {apiClient} from '../ApiClient'
 
 export enum AffectedByContentTypeModel {
   CVSS_RULE = 'cvssrule',

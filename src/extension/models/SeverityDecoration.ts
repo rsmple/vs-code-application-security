@@ -1,6 +1,6 @@
 import {type TextEditorDecorationType, window} from 'vscode'
 
-import {Severity} from './Severity'
+import {Severity} from '@/models/Severity'
 
 export const severityDecorationMap: Record<Severity, TextEditorDecorationType> = {
   [Severity.INFO]: window.createTextEditorDecorationType({

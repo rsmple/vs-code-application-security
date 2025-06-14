@@ -1,9 +1,9 @@
+import type {SeverityTitleEmoji} from '@/models/Severity'
+import type {TriageStatusTitle} from '@/models/TriageStatus'
+
 import {commands, window, workspace} from 'vscode'
 
-import {CommandName, SETTINGS_KEY} from '@/package'
-
-import {SeverityTitleEmoji} from './Severity'
-import {TriageStatusTitle} from './TriageStatus'
+import {CommandName, SETTINGS_KEY} from '../package'
 
 export type Settings = {
   base: {

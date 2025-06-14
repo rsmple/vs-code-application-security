@@ -1,14 +1,14 @@
 import {type Command, type Event, EventEmitter, Range, type TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window} from 'vscode'
 
-import WorkspaceState from '@/utils/WorkspaceState'
+import WorkspaceState from '@ext/utils/WorkspaceState'
 
-import {type Finding, getFindingAbsolutePath} from '@/models/Finding'
 import {severityTitleMap} from '@/models/Severity'
-import {ViewName} from '@/package'
+import {type FindingExtended, getFindingAbsolutePath} from '@ext/models/Finding'
+import {ViewName} from '@ext/package'
 
 class TreeItemFinding extends TreeItem {
   constructor(
-        public readonly list: Finding[],
+        public readonly list: FindingExtended[],
         public readonly label: string,
         public readonly path: string | undefined,
         public readonly command?: Command,
@@ -18,7 +18,7 @@ class TreeItemFinding extends TreeItem {
   }
 }
 
-const getCommandFindingOpen = (value: Finding): Command | undefined => {
+const getCommandFindingOpen = (value: FindingExtended): Command | undefined => {
   const filePath = getFindingAbsolutePath(value)
 
   if (filePath === null) return undefined
@@ -40,10 +40,10 @@ class TreeDataProviderFinding implements TreeDataProvider<TreeItemFinding> {
   private _onDidChangeTreeData: EventEmitter<TreeItemFinding | undefined | void> = new EventEmitter<TreeItemFinding | undefined | void>()
   readonly onDidChangeTreeData: Event<TreeItemFinding | undefined | void> = this._onDidChangeTreeData.event
 
-  public groupList: Record<string, Finding[]> = {}
+  public groupList: Record<string, FindingExtended[]> = {}
 
   public updateList() {
-    this.groupList = WorkspaceState.findingList.reduce<Record<string, Finding[]>>((result, current) => {
+    this.groupList = WorkspaceState.findingList.reduce<Record<string, FindingExtended[]>>((result, current) => {
       if (current.file_path !== null) {
         if (!result[current.file_path]) result[current.file_path] = []
 

@@ -1,8 +1,8 @@
 import {CodeLens, type CodeLensProvider, EventEmitter, type TextDocument, workspace} from 'vscode'
 
-import {getFindingAbsolutePath} from '@/models/Finding'
-import {CommandName} from '@/package'
-import {outputChannel} from '@/utils/OutputChannel'
+import {getFindingAbsolutePath} from '@ext/models/Finding'
+import {CommandName} from '@ext/package'
+import {outputChannel} from '@ext/utils/OutputChannel'
 
 import {treeDataProviderFinding} from './TreeDataProviderFinding'
 

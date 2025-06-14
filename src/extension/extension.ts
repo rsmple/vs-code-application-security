@@ -1,16 +1,19 @@
 import {type ExtensionContext, Uri, commands, window, workspace} from 'vscode'
 
-import FindingApi from './api/modules/FindingApi'
-import {parseSettingsSetup, setupSettings} from './models/Settings'
-import {TriageStatus} from './models/TriageStatus'
-import {CommandName, SETTINGS_KEY} from './package'
-import {checkFindings} from './providers/CheckFindings'
-import {applyDecorationsFinding} from './providers/DecorationsFinding'
-import {treeDataProviderFinding} from './providers/TreeDataProviderFinding'
-import {setContext} from './utils/Context'
-import {getGitEmail} from './utils/GitConfig'
-import {outputChannel} from './utils/OutputChannel'
-import WorkspaceState from './utils/WorkspaceState'
+import WorkspaceState from '@ext/utils/WorkspaceState'
+
+import {TriageStatus} from '@/models/TriageStatus'
+import FindingApi from '@ext/api/modules/FindingApi'
+import {parseSettingsSetup, setupSettings} from '@ext/models/Settings'
+import {CommandName, SETTINGS_KEY, ViewName} from '@ext/package'
+import {checkFindings} from '@ext/providers/CheckFindings'
+import {applyDecorationsFinding} from '@ext/providers/DecorationsFinding'
+import {treeDataProviderFinding} from '@ext/providers/TreeDataProviderFinding'
+import {setContext} from '@ext/utils/Context'
+import {getGitEmail} from '@ext/utils/GitConfig'
+import {outputChannel} from '@ext/utils/OutputChannel'
+
+import {ChatViewProvider} from './providers/WebviewProvider'
 
 export function activate(context: ExtensionContext) {
   setContext(context)
@@ -67,6 +70,10 @@ export function activate(context: ExtensionContext) {
         window.showErrorMessage(message)
       })
   })
+
+  context.subscriptions.push(
+    window.registerWebviewViewProvider(ViewName.WEBVIEW, new ChatViewProvider()),
+  )
 
   commands.executeCommand(CommandName.CHECK_FINDINGS)
 

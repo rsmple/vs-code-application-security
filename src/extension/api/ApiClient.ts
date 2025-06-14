@@ -1,9 +1,9 @@
 import {ApiError, ApiErrorCancel, encodeQueryParams} from 'eco-vue-js/dist/utils/api'
 
-import {getPortalUrl, getSettings} from '@/models/Settings'
-import {SETTINGS_KEY_CAP} from '@/package'
-import {showErrorMessage} from '@/providers/TreeDataProviderFinding'
-import {outputChannel} from '@/utils/OutputChannel'
+import {getPortalUrl, getSettings} from '../models/Settings'
+import {SETTINGS_KEY_CAP} from '../package'
+import {showErrorMessage} from '../providers/TreeDataProviderFinding'
+import {outputChannel} from '../utils/OutputChannel'
 
 export const getURLParams = (params: RequestConfig['params']): string => {
   return new URLSearchParams(encodeQueryParams(params) as Record<string, string>).toString()

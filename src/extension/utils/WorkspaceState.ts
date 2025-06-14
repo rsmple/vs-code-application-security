@@ -1,5 +1,5 @@
 import type {Asset} from '@/models/Asset'
-import type {Finding} from '@/models/Finding'
+import type {FindingExtended} from '@ext/models/Finding'
 
 import {context} from './Context'
 
@@ -19,9 +19,9 @@ export default {
   },
 
   get findingList() {
-    return context.workspaceState.get<Finding[]>('findingList') ?? []
+    return context.workspaceState.get<FindingExtended[]>('findingList') ?? []
   },
-  set findingList(value: Finding[]) {
+  set findingList(value: FindingExtended[]) {
     context.workspaceState.update('findingList', value)
   },
 

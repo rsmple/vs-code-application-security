@@ -8,21 +8,17 @@ export default [
 
   {
     name: 'app/files-to-ignore',
-    ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**', '**/node_modules/**', '**/extension/**'],
+    ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**', '**/node_modules/**', './extension/**'],
   },
 
-  ...plugin.configs.recommended({noVue: true}),
-
-  {
-    settings: {
-      'import/resolver': {
-        typescript: {
-          alwaysTryTypes: true,
-          project: './tsconfig.src.json',
-        },
-      },
-    },
-  },
+  ...plugin.configs.recommended({
+    tsConfig: [
+      './tsconfig.json',
+      './tsconfig.extension.json',
+      './tsconfig.webview.json',
+      './tsconfig.node.json',
+    ],
+  }),
 
   {
     files: ['./.vscode/**/*.json'],
