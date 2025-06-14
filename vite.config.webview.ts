@@ -22,6 +22,10 @@ export default defineConfig({
       input: resolve(__dirname, 'src/webview/main.ts'),
       output: {
         entryFileNames: '[name].js',
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.names.includes('style.css')) return 'main.css'
+          return 'assets/[name][extname]'
+        },
       },
     },
   },

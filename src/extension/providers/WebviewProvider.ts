@@ -15,26 +15,30 @@ export class WebviewProvider implements WebviewViewProvider {
       localResourceRoots: [Uri.joinPath(context.extensionUri, 'webview')],
     }
 
-    const scriptUri = webview.asWebviewUri(
-      Uri.joinPath(context.extensionUri, 'webview', 'main.js'),
-    )
+    const scriptUri = webview.asWebviewUri(Uri.joinPath(context.extensionUri, 'webview', 'main.js'))
+    const styleUri = webview.asWebviewUri(Uri.joinPath(context.extensionUri, 'webview/assets', 'main.css'))
 
-    webview.html = this.getHtml(scriptUri)
+    webview.html = this.getHtml(scriptUri, styleUri)
 
-    outputChannel.appendLine(scriptUri.toString())
+    outputChannel.appendLine(this.getHtml(scriptUri, styleUri))
   }
 
-  getHtml(scriptUri: Uri) {
+  getHtml(scriptUri: Uri, styleUrl: Uri) {
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
+  ${ process.env.NODE_ENV === 'development' ? '<script type="module" src="/@vite/client"></script>' : '' }
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Webview</title>
+${ process.env.NODE_ENV === 'development' ? '' : `
+  <script type="module" crossorigin src="${ scriptUri }"></script>
+  <link rel="stylesheet" crossorigin href="${ styleUrl }">
+` }
 </head>
 <body>
   <div id="app"></div>
-  <script type="module" src="${ process.env.NODE_ENV !== 'production' ? 'http://localhost:5173/main.ts' : scriptUri }"></script>
+  ${ process.env.NODE_ENV === 'development' ? '<script type="module" src="http://localhost:5173/main.ts"></script>' : '' }
 </body>
 </html>`
   }

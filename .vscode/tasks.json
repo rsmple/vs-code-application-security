@@ -6,7 +6,7 @@
     {
       "label": "dev:extension",
       "type": "npm",
-      "script": "build", // "dev:extension",
+      "script": "dev:extension", // "build",
       "group": "build",
       "problemMatcher": "$vite",
       "isBackground": true,
