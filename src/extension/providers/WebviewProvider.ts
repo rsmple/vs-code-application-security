@@ -13,7 +13,12 @@ export class WebviewProvider implements WebviewViewProvider {
     webview.options = {
       enableScripts: true,
       localResourceRoots: [Uri.joinPath(context.extensionUri, 'webview')],
-    }
+
+      enableCommandUris: true,
+      enableFindWidget: true,
+      enableForms: true,
+      enableSandbox: false, 
+    } as typeof webview.options
 
     const scriptUri = webview.asWebviewUri(Uri.joinPath(context.extensionUri, 'webview', 'main.js'))
     const styleUri = webview.asWebviewUri(Uri.joinPath(context.extensionUri, 'webview/assets', 'main.css'))

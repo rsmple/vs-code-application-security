@@ -14,6 +14,7 @@ export enum CommandName {
   CONFIGURE = `${ SETTINGS_KEY }.configure`,
   REJECT_FINDING = `${ SETTINGS_KEY }.rejectFinding`,
   SETUP = `${ SETTINGS_KEY }.setup`,
+  SUGGEST = `${ SETTINGS_KEY }.suggest`
 }
 
 export enum ViewName {
@@ -84,6 +85,10 @@ export default {
       {
         command: CommandName.SETUP,
         title: 'Setup',
+      },
+      {
+        command: CommandName.SUGGEST,
+        title: 'Suggest',
       },
     ],
     configuration: [

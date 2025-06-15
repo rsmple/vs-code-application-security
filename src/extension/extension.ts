@@ -13,6 +13,7 @@ import {setContext} from '@ext/utils/Context'
 import {getGitEmail} from '@ext/utils/GitConfig'
 import {outputChannel} from '@ext/utils/OutputChannel'
 
+import {addSuggestedProvider} from './providers/SuggestedProvider'
 import {WebviewProvider} from './providers/WebviewProvider'
 
 export function activate(context: ExtensionContext) {
@@ -96,6 +97,8 @@ export function activate(context: ExtensionContext) {
       applyDecorationsFinding()
     }, null, context.subscriptions),
   )
+
+  addSuggestedProvider()
 
   commands.executeCommand(CommandName.CHECK_FINDINGS)
 }

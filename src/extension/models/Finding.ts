@@ -45,8 +45,11 @@ export const getFindingHoverMessage = (value: FindingExtended, outdated: boolean
 
   hoverMessage.appendMarkdown(`## ${ prefix }${ url }: ${ severityEmojiMap[value.severity] } ${ severityTitleMap[value.severity] } - ${ value.name }${ outdated ? ' (possibly outdated)' : '' }\n\n`)
 
-  const commandUri = `command:${ CommandName.REJECT_FINDING }?${ encodeURIComponent(JSON.stringify(value.id)) }`
-  if (value.current_sla_level !== TriageStatus.REJECTED) hoverMessage.appendMarkdown(`[Reject this finding](${ commandUri })\n\n`)
+  if (value.current_sla_level !== TriageStatus.REJECTED) {
+    const rejectUri = `command:${ CommandName.REJECT_FINDING }?${ encodeURIComponent(JSON.stringify(value.id)) }`
+    hoverMessage.appendMarkdown(`[Reject this finding](${ rejectUri })\n\n`)
+  }
+
   hoverMessage.isTrusted = true
 
   hoverMessage.appendMarkdown(`${ value.file_path }:${ value.line }\n\n`)
