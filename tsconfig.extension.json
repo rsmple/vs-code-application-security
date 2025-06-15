@@ -1,0 +1,32 @@
+{
+  "include": [
+    "src/types/ui-kit.d.ts",
+    "env.d.ts",
+    "src/types/global.d.ts",
+    "src/models/**/*.ts",
+    "src/extension/**/*.d.ts",
+    "src/extension/**/*.ts",
+    "assets/**/*"
+  ],
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "strict": true,
+    "composite": true,
+    "verbatimModuleSyntax": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@ext/*": [
+        "./src/extension/*"
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

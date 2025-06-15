@@ -1,0 +1,57 @@
+@tailwind base;
+
+@layer base {
+  html,
+  body,
+  #app {
+    @apply h-full overscroll-x-none snap-always font-sans
+  }
+
+  html {
+    min-height: calc(100% + 1px);
+
+    @apply bg-default text-black-default
+     selection:bg-gray-200 selection:bg-opacity-70 selection:text-[inherit]
+     w-scroll-bar-color-[rgb(209_213_219_/_70%)] w-scroll-bar-color-hover-[rgb(209_213_219)]
+     sm-not:overflow-x-auto snap-x snap-mandatory
+  }
+
+  html.dark {
+    @apply bg-default-dark text-gray-100
+      selection:bg-gray-700 selection:bg-opacity-70 selection:text-[inherit]
+      w-scroll-bar-color-[rgb(55_65_81_/_60%)] w-scroll-bar-color-hover-[rgb(55_65_81)]
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    forced-color-adjust: exact;
+
+    -webkit-tap-highlight-color: transparent;
+
+    --header-height: 3rem;
+    --nav-bar-width: 0px;
+    --actions-bar-width: 0px;
+    --actions-bar-filter-width: 380px;
+    --inner-margin: 1rem;
+    --inner-width-diff: calc(var(--nav-bar-width) + var(--actions-bar-width) + (var(--inner-margin) * 2));
+
+    --w-actions-bar-width: theme(width.actions-bar-width);
+
+    @apply
+      w-checkbox-size-3
+      w-modal-wrapper-p-[--inner-margin]
+      w-input-h-8 w-input-rounded-lg w-input-gap-0.5
+      w-list-header-h-10 w-list-header-rounded-xl w-list-padding-3
+      w-button-h-8 w-button-rounded-xl
+      w-modal-confirm-w-[32rem]
+      text-sm
+      md:[--actions-bar-width:theme(width.actions-bar-width)]
+      xl:[--nav-bar-width:theme(width.nav-bar-width)]
+      4xl:[--inner-margin:2.5rem]
+  }
+
+  a:focus {
+    outline: none;
+  }
+}

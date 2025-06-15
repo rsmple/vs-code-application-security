@@ -2,6 +2,7 @@
   "extends": "@tsconfig/node22/tsconfig.json",
   "include": [
     "vite.config.*",
+    "vite.build.ts",
     "vitest.config.*",
     "cypress.config.*",
     "nightwatch.conf.*",
@@ -9,7 +10,8 @@
     "build/**/*.ts",
     "src/models/**/*.ts",
     "env-node.d.ts",
-    "src/package.ts"
+    "src/package.ts",
+    "tailwind/**/*"
   ],
   "compilerOptions": {
     "composite": true,
